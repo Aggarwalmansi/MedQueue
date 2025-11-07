@@ -4,6 +4,8 @@ import { useState, useEffect } from "react"
 import { useAuth } from "../context/AuthContext"
 import BedManagement from "../components/BedManagement"
 import HospitalStats from "../components/HospitalStats"
+// import BedList from "../components/BedList"
+// import AddBedForm from "../components/AddBedForm"
 import "../styles/ManagerDashboard.css"
 
 export default function ManagerDashboard() {
@@ -69,17 +71,17 @@ export default function ManagerDashboard() {
 
   return (
     <div className="dashboard-container">
-      {/* Header */}
+     
       <div className="dashboard-header">
         <h1>Hospital Dashboard</h1>
         <p className="hospital-name">{hospital?.name}</p>
         <p className="hospital-address">{hospital?.address}</p>
       </div>
 
-      {/* Stats Section */}
+  
       {stats && <HospitalStats stats={stats} onRefresh={fetchHospitalData} />}
 
-      {/* Bed Management Section */}
+  
       <div className="bed-management-section">
         <h2>Bed Management</h2>
         <BedManagement hospitalId={user.hospitalId} token={token} onUpdate={fetchHospitalData} />

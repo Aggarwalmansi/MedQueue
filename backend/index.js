@@ -4,6 +4,7 @@ const dotenv = require('dotenv');
 const auth = require('./routes/auth');
 const hospitalRoutes = require('./routes/hospital');
 const bedRoutes = require('./routes/bed');
+const searchRoutes = require('./routes/search');
 dotenv.config();
 
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/api/auth", auth)
 app.use("/api/hospitals", hospitalRoutes)
 app.use("/api/beds", bedRoutes)
+app.use("/api/search", searchRoutes)
 
 app.get("/test", (req, res) => {
   res.json({ message: "Test route is working!" })

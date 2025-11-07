@@ -59,6 +59,8 @@ export default function AddBedForm({ hospitalId, token, onBedAdded, onCancel }) 
     }
   }
 
+
+
   return (
     <form className="add-bed-form" onSubmit={handleSubmit}>
       <div className="form-group">

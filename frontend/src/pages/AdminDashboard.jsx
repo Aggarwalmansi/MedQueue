@@ -2,7 +2,8 @@
 import React from "react"
 import { useState, useEffect } from "react"
 import { useAuth } from "../context/AuthContext"
-
+import BedManagement from "../components/BedManagement"
+import HospitalStats from "../components/HospitalStats"
 export default function AdminDashboard() {
   const { token } = useAuth()
   console.log("AdminDashboard token:", token);
