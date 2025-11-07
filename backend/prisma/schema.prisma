@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+enum Role {
+  USER
+  HOSPITAL_MANAGER
+  ADMIN
+}
+enum BedType {
+  GENERAL
+  ICU
+  PEDIATRIC
+  VENTILATOR
+}
+enum BedStatus {
+  AVAILABLE
+  OCCUPIED
+  MAINTENANCE
+}
+
+model User{
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String
+  role     Role    @default(USER)
+  hospitalId String?
+  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+model Hospital {
+  id            String @id @default(uuid())
+  name          String
+  address       String
+  contactPhone  String?
+  latitude      Float
+  longitude     Float
+  managers      User[] // Hospital has many managers
+  beds          Bed[]  //Hospital has many beds
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([name])
+}
+model Bed {
+  id         String @id @default(uuid())
+  type       BedType
+  status     BedStatus @default(AVAILABLE)
+  bedNumber  String
+  hospitalId String
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([hospitalId, bedNumber])
+  @@index([hospitalId])
+  @@index([status])
+}

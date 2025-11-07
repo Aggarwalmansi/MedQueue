@@ -1,0 +1,65 @@
+.bed-management {
+  margin-top: 1.5rem;
+}
+
+.bed-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filter-section label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.status-filter {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #1f2937;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.status-filter:hover,
+.status-filter:focus {
+  border-color: #3b82f6;
+  outline: none;
+}
+
+.add-bed-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.add-bed-btn:hover {
+  background: #059669;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
