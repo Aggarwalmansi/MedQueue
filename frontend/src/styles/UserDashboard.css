@@ -1,0 +1,361 @@
+/* Minimalist, premium hospital bed search interface */
+.user-dashboard {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* Hero Search Section */
+.search-hero {
+  min-height: 45vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  text-align: center;
+}
+
+.search-container {
+  max-width: 800px;
+  width: 100%;
+}
+
+.search-title {
+  font-size: 3rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 12px;
+  letter-spacing: -1px;
+}
+
+.search-subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 40px;
+  font-weight: 400;
+}
+
+/* Search Controls */
+.search-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: white;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+}
+
+.bed-type-selector,
+.radius-selector {
+  text-align: left;
+}
+
+.selector-label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bed-select,
+.radius-slider {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.bed-select:focus,
+.radius-slider:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.radius-slider {
+  cursor: pointer;
+  height: 6px;
+  background: linear-gradient(to right, #667eea, #764ba2);
+}
+
+/* Find Button */
+.find-button {
+  padding: 14px 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.find-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.find-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Error Message */
+.error-message {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background: #fee;
+  color: #c33;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Results Section */
+.results-section {
+  max-width: 900px;
+  margin: 60px auto;
+  padding: 0 20px;
+}
+
+.results-header {
+  margin-bottom: 32px;
+}
+
+.results-count {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Hospitals List */
+.hospitals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.hospital-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.hospital-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.hospital-info {
+  flex: 1;
+  text-align: left;
+}
+
+.hospital-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0 0 4px 0;
+}
+
+.hospital-address {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0;
+}
+
+.distance-badge {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.distance-value {
+  font-size: 1.4rem;
+}
+
+.distance-unit {
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+/* Card Body */
+.card-body {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.available-beds {
+  flex: 1;
+}
+
+.beds-label {
+  font-size: 0.85rem;
+  color: #999;
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.beds-count {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #667eea;
+  margin: 0;
+}
+
+/* Bed Types */
+.bed-types {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bed-type-tag {
+  background: #f0f0f0;
+  color: #333;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Card Footer */
+.card-footer {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #f9f9f9;
+}
+
+.contact-link,
+.details-button {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  text-align: center;
+}
+
+.contact-link {
+  background: #ffa500;
+  color: white;
+}
+
+.contact-link:hover {
+  background: #ff8c00;
+}
+
+.details-button {
+  background: #667eea;
+  color: white;
+}
+
+.details-button:hover {
+  background: #5568d3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .search-hero {
+    padding: 40px 20px;
+    min-height: auto;
+  }
+
+  .search-title {
+    font-size: 2rem;
+  }
+
+  .search-subtitle {
+    font-size: 1rem;
+  }
+
+  .search-controls {
+    flex-direction: column;
+    padding: 24px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .distance-badge {
+    align-self: flex-start;
+  }
+
+  .card-body {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .card-footer {
+    flex-direction: column;
+  }
+
+  .contact-link,
+  .details-button {
+    width: 100%;
+  }
+}
