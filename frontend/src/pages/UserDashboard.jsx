@@ -42,7 +42,7 @@ export default function UserDashboard() {
       setError(null)
       setHasSearched(true)
 
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000"
+      const apiUrl = "http://localhost:5001"
 
       const query = new URLSearchParams()
       query.append("latitude", userLocation.latitude)
@@ -52,23 +52,35 @@ export default function UserDashboard() {
       }
       query.append("radius", searchRadius)
 
+      console.log("[v0] Search API URL:", `${apiUrl}/api/search/hospitals?${query}`)
+      console.log("[v0] User Location:", userLocation)
+      console.log("[v0] Auth Token:", token ? "Present" : "Missing")
+
       const response = await fetch(`${apiUrl}/api/search/hospitals?${query}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       })
 
+      console.log("[v0] API Response Status:", response.status)
+
       if (!response.ok) {
-        throw new Error("Failed to search hospitals")
+        const errorData = await response.json()
+        console.log("[v0] Error Data:", errorData)
+        throw new Error(errorData.message || "Failed to search hospitals")
       }
 
       const data = await response.json()
+      console.log("[v0] Search Results:", data)
       setHospitals(data.data || [])
 
       if (data.data.length === 0) {
-        setError("No hospitals with available beds found in your area")
+        setError("No hospitals with available beds found in your area. Try increasing the search radius.")
       }
     } catch (err) {
       setError(err.message || "Error searching hospitals")
-      console.error("Search error:", err)
+      console.error("[v0] Search error:", err)
     } finally {
       setLoading(false)
     }

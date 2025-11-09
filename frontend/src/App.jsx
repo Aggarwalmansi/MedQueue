@@ -6,12 +6,13 @@ import Login from "./pages/Login"
 import Signup from "./pages/Signup"
 import Dashboard from "./pages/Dashboard"
 import Unauthorized from "./pages/Unauthorised"
+import HomePage from "./pages/HomePage"
 function App() {
   return (
     <BrowserRouter>
-      <h1>Hello React is Working </h1>
       <AuthProvider>
         <Routes>
+          <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
@@ -19,9 +20,9 @@ function App() {
           <Route
             path="/dashboard"
             element={
-              // <ProtectedRoute>
+              <ProtectedRoute>
               <Dashboard />
-              // </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
 

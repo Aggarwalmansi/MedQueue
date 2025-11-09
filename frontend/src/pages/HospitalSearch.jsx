@@ -41,7 +41,7 @@ export default function HospitalSearch() {
     try {
       setLoading(true)
       setError(null)
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5000"
+      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001"
 
       const query = new URLSearchParams()
       query.append("latitude", latitude)
