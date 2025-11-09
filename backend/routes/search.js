@@ -1,5 +1,6 @@
 const express = require("express")
 const { PrismaClient } = require("@prisma/client")
+const {authMiddleware} = require("../middleware/auth")
 const router = express.Router()
 const prisma = new PrismaClient()
 
@@ -18,7 +19,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 // GET /api/search/hospitals
 // Query Parameters: latitude (Float), longitude (Float), bedType (String, optional), radius (Number, optional)
 // Returns: Array of hospitals sorted by distance with available beds filtered by type
-router.get("/hospitals", async (req, res) => {
+router.get("/hospitals",authMiddleware, async (req, res) => {
   try {
     const { latitude, longitude, bedType, radius } = req.query
 

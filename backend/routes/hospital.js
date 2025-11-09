@@ -39,8 +39,11 @@ router.get("/nearest", async (req, res) => {
     const parsedRadius = radius ? Number.parseInt(radius) : defaultRadius
 
     if (!latitude || !longitude) {
-      return res.status(400).json({ error: "Latitude and longitude required" })
-    }
+
+  const hospitals = await prisma.hospital.findMany();
+  return res.json({ success: true, count: hospitals.length, data: hospitals });
+}
+
 
     const lat = Number.parseFloat(latitude)
     const lng = Number.parseFloat(longitude)

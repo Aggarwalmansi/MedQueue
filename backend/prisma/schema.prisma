@@ -37,16 +37,21 @@ model Hospital {
   id            String @id @default(uuid())
   name          String
   address       String
+  state         String?
+  city          String?
   contactPhone  String?
   latitude      Float
   longitude     Float
   managers      User[] // Hospital has many managers
-  beds          Bed[]  //Hospital has many beds
+  beds          Bed[]  // Hospital has many beds
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   @@index([name])
+  @@index([state])
+  @@index([city])
 }
+
 model Bed {
   id         String @id @default(uuid())
   type       BedType
