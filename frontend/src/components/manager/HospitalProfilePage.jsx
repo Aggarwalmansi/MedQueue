@@ -23,7 +23,7 @@ export default function HospitalProfilePage({ hospital, setHospital, token }) {
     e.preventDefault()
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:5000/api/hospitals/${hospital.id}`, {
+      const response = await fetch(`http://localhost:5001/api/hospitals/${hospital.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

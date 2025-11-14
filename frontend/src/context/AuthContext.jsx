@@ -1,5 +1,5 @@
 "use client"
-
+import React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 
 const AuthContext = createContext()
@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
   const verifyToken = async (authToken) => {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/verify-token", {
+      const response = await fetch("http://localhost:5001/api/auth/verify-token", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchCurrentUser = async (authToken) => {
     try {
-      const response = await fetch("http://localhost:5000/api/auth/me", {
+      const response = await fetch("http://localhost:5001/api/auth/me", {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
   const signup = async (email, password, role) => {
     setError(null)
     try {
-      const response = await fetch("http://localhost:5000/api/auth/signup", {
+      const response = await fetch("http://localhost:5001/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, role }),
@@ -100,7 +100,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setError(null)
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch("http://localhost:5001/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

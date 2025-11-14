@@ -1,5 +1,5 @@
 "use client"
-
+import React from "react"
 import { useState, useEffect } from "react"
 import { useAuth } from "../context/AuthContext"
 import Header from "../components/Header"
@@ -30,7 +30,7 @@ export default function ManagerDashboard() {
 
   const fetchHospitalData = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/hospitals/${user.hospitalId}`, {
+      const response = await fetch(`http://localhost:5001/api/hospitals/${user.hospitalId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {

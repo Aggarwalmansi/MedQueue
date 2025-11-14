@@ -32,7 +32,7 @@ const Signup = () => {
     const result = await signup(email, password, role)
 
     if (result.success) {
-      navigate(`/dashboard/${role.toLowerCase()}`)
+      navigate(`/dashboard`)
     }
     setLoading(false)
   }

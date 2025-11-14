@@ -15,10 +15,10 @@ export default function ManagerMainDashboard({ hospital, token }) {
   const fetchData = async () => {
     try {
       const [statsRes, bookingsRes] = await Promise.all([
-        fetch(`http://localhost:5000/api/beds/stats/${hospital.id}`, {
+        fetch(`http://localhost:5001/api/beds/stats/${hospital.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`http://localhost:5000/api/bookings/hospital/${hospital.id}/status/PENDING`, {
+        fetch(`http://localhost:5001/api/bookings/hospital/${hospital.id}/status/PENDING`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ])

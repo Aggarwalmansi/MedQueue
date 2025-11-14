@@ -32,7 +32,7 @@ export default function BookingManagement({ hospital, token }) {
 
   const handleApprove = async (bookingId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}/approve`, {
+      const response = await fetch(`http://localhost:5001/api/bookings/${bookingId}/approve`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -46,7 +46,7 @@ export default function BookingManagement({ hospital, token }) {
 
   const handleReject = async (bookingId) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/bookings/${bookingId}/reject`, {
+      const response = await fetch(`http://localhost:5001/api/bookings/${bookingId}/reject`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       })

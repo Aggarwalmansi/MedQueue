@@ -16,7 +16,7 @@ export default function BedManagementPage({ hospital, token }) {
   const fetchBeds = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:5000/api/beds/hospital/${hospital.id}`, {
+      const response = await fetch(`http://localhost:5001/api/beds/hospital/${hospital.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
@@ -32,7 +32,7 @@ export default function BedManagementPage({ hospital, token }) {
 
   const handleStatusChange = async (bedId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/beds/${bedId}`, {
+      const response = await fetch(`http://localhost:5001/api/beds/${bedId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
