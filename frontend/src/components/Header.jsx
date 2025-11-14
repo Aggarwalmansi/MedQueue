@@ -1,6 +1,6 @@
 "use client"
 import React from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import "../styles/Header.css"
 
@@ -24,9 +24,9 @@ export default function Header({ scrolled }) {
 
         {/* Navigation */}
         <nav className="nav-links">
-          <a href="#features">How It Works</a>
-          <a href="#solution">Features</a>
-          <a href="#contact">Contact</a>
+          <Link to="#features">How It Works</Link>
+          <Link to="#solution">Features</Link>
+          <Link to="#contact">Contact</Link>
         </nav>
 
         {/* Auth Buttons */}

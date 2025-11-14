@@ -216,9 +216,9 @@ export default function UserDashboard() {
                     </div>
 
                     <div className="card-footer">
-                      <a href={`tel:${hospital.contactPhone}`} className="contact-link">
+                      <Link to={`tel:${hospital.contactPhone}`} className="contact-link">
                         Call Now
-                      </a>
+                      </Link>
                       <button className="details-button">View Details</button>
                     </div>
                   </div>
