@@ -19,7 +19,7 @@ export default function UserDashboard() {
   const fetchAllHospitals = async () => {
     try {
       setLoading(true)
-      const apiUrl = "http://localhost:5001"
+      const apiUrl = import.meta.env.VITE_BACKEND_URL;
       const response = await fetch(`${apiUrl}/api/hospitals/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -66,7 +66,7 @@ export default function UserDashboard() {
       setError(null)
       setHasSearched(true)
 
-      const apiUrl = "http://localhost:5001"
+      const apiUrl = import.meta.env.VITE_BACKEND_URL;
 
       const query = new URLSearchParams()
       query.append("latitude", userLocation.latitude)
