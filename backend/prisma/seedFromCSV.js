@@ -12,7 +12,7 @@ function getRandomCoords() {
   return { lat, lon };
 }
 
-// Helper to generate random phone numbers
+// Helper to generate random phone xnumbers
 function getRandomPhone() {
   return `+91${Math.floor(6000000000 + Math.random() * 3999999999)}`;
 }

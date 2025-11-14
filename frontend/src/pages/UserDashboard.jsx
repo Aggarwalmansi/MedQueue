@@ -13,6 +13,30 @@ export default function UserDashboard() {
   const [hasSearched, setHasSearched] = useState(false)
   const [userLocation, setUserLocation] = useState(null)
   const [searchRadius, setSearchRadius] = useState(50)
+  
+
+  useEffect(() => {
+  const fetchAllHospitals = async () => {
+    try {
+      setLoading(true)
+      const apiUrl = "http://localhost:5001"
+      const response = await fetch(`${apiUrl}/api/hospitals/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
+      const data = await response.json()
+      setHospitals(data || [])
+    } catch (err) {
+      console.error("Error loading hospitals:", err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  fetchAllHospitals()
+}, [token])
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -52,11 +76,13 @@ export default function UserDashboard() {
       }
       query.append("radius", searchRadius)
 
-      console.log("[v0] Search API URL:", `${apiUrl}/api/search/hospitals?${query}`)
+      console.log("[v0] Search API URL:", `${apiUrl}/api/hospitals?${query}`)
       console.log("[v0] User Location:", userLocation)
       console.log("[v0] Auth Token:", token ? "Present" : "Missing")
 
-      const response = await fetch(`${apiUrl}/api/search/hospitals?${query}`, {
+      // const response = await fetch(`${apiUrl}/api/hospitals?${query}`, {
+      const response = await fetch(`${apiUrl}/api/hospitals/all`, {
+
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -70,12 +96,13 @@ export default function UserDashboard() {
         console.log("[v0] Error Data:", errorData)
         throw new Error(errorData.message || "Failed to search hospitals")
       }
-
+      
       const data = await response.json()
-      console.log("[v0] Search Results:", data)
-      setHospitals(data.data || [])
+      console.log("[v0] Search Results:", data.length)
+      setHospitals(data || [])
+      console.log("this is the hospital : ", data )
 
-      if (data.data.length === 0) {
+      if (data.length === 0) {
         setError("No hospitals with available beds found in your area. Try increasing the search radius.")
       }
     } catch (err) {
@@ -175,8 +202,9 @@ export default function UserDashboard() {
                         <p className="beds-label">Available Beds</p>
                         <p className="beds-count">{hospital.totalAvailableBeds}</p>
                       </div>
-
-                      {Object.keys(hospital.availableBedsByType).length > 0 && (
+                      {console.log("hospital available beds by type: ", hospital.availableBedsByType)}
+                      {hospital.availableBedsByType && Object.keys(hospital.availableBedsByType).length > 0 && (
+                      
                         <div className="bed-types">
                           {Object.entries(hospital.availableBedsByType).map(([type, count]) => (
                             <span key={type} className="bed-type-tag">

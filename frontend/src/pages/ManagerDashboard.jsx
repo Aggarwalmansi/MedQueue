@@ -1,19 +1,26 @@
 "use client"
-import React from "react"
+
 import { useState, useEffect } from "react"
 import { useAuth } from "../context/AuthContext"
-import BedManagement from "../components/BedManagement"
-import HospitalStats from "../components/HospitalStats"
-// import BedList from "../components/BedList"
-// import AddBedForm from "../components/AddBedForm"
+import Header from "../components/Header"
 import "../styles/ManagerDashboard.css"
+import ManagerMainDashboard from "../components/manager/ManagerMainDashboard"
+import BookingManagement from "../components/manager/BookingManagement"
+import BedManagementPage from "../components/manager/BedManagementPage"
+import HospitalProfilePage from "../components/manager/HospitalProfilePage"
 
 export default function ManagerDashboard() {
   const { user, token } = useAuth()
+  const [currentPage, setCurrentPage] = useState("dashboard")
   const [hospital, setHospital] = useState(null)
-  const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 10)
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   useEffect(() => {
     if (user?.hospitalId) {
@@ -23,68 +30,85 @@ export default function ManagerDashboard() {
 
   const fetchHospitalData = async () => {
     try {
-      setLoading(true)
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001"
-
-      const [hospitalRes, statsRes] = await Promise.all([
-        fetch(`${apiUrl}/api/hospitals/${user.hospitalId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch(`${apiUrl}/api/beds/stats/${user.hospitalId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-      ])
-
-      if (!hospitalRes.ok || !statsRes.ok) {
-        throw new Error("Failed to fetch hospital data")
+      const response = await fetch(`http://localhost:5000/api/hospitals/${user.hospitalId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setHospital(data)
       }
-
-      const hospitalData = await hospitalRes.json()
-      const statsData = await statsRes.json()
-
-      setHospital(hospitalData)
-      setStats(statsData)
-      setError(null)
-    } catch (err) {
-      setError(err.message)
-      console.error("Error fetching hospital data:", err)
+    } catch (error) {
+      console.error("Error fetching hospital:", error)
     } finally {
       setLoading(false)
     }
   }
 
-  if (loading) {
+  if (loading)
     return (
       <div className="dashboard-container">
         <div className="loading-spinner">Loading...</div>
       </div>
     )
-  }
-
-  if (error) {
-    return (
-      <div className="dashboard-container">
-        <div className="error-message">{error}</div>
-      </div>
-    )
-  }
 
   return (
-    <div className="dashboard-container">
-     
-      <div className="dashboard-header">
-        <h1>Hospital Dashboard</h1>
-        <p className="hospital-name">{hospital?.name}</p>
-        <p className="hospital-address">{hospital?.address}</p>
-      </div>
+    <div>
+      <Header scrolled={scrolled} />
 
-  
-      {stats && <HospitalStats stats={stats} onRefresh={fetchHospitalData} />}
+      {/* Add padding-top to account for fixed header */}
+      <div style={{ paddingTop: "80px" }}>
+        <div className="manager-dashboard">
+          {/* Sidebar Navigation */}
+          <nav className="manager-sidebar">
+            <div className="sidebar-header">
+              <h3>{hospital?.name}</h3>
+            </div>
+            <ul className="nav-items">
+              <li>
+                <button
+                  className={`nav-link ${currentPage === "dashboard" ? "active" : ""}`}
+                  onClick={() => setCurrentPage("dashboard")}
+                >
+                  Dashboard
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`nav-link ${currentPage === "bookings" ? "active" : ""}`}
+                  onClick={() => setCurrentPage("bookings")}
+                >
+                  Bookings
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`nav-link ${currentPage === "beds" ? "active" : ""}`}
+                  onClick={() => setCurrentPage("beds")}
+                >
+                  Bed Management
+                </button>
+              </li>
+              <li>
+                <button
+                  className={`nav-link ${currentPage === "profile" ? "active" : ""}`}
+                  onClick={() => setCurrentPage("profile")}
+                >
+                  Hospital Profile
+                </button>
+              </li>
+            </ul>
+          </nav>
 
-  
-      <div className="bed-management-section">
-        <h2>Bed Management</h2>
-        <BedManagement hospitalId={user.hospitalId} token={token} onUpdate={fetchHospitalData} />
+          {/* Main Content Area */}
+          <main className="manager-content">
+            {currentPage === "dashboard" && <ManagerMainDashboard hospital={hospital} token={token} />}
+            {currentPage === "bookings" && <BookingManagement hospital={hospital} token={token} />}
+            {currentPage === "beds" && <BedManagementPage hospital={hospital} token={token} />}
+            {currentPage === "profile" && (
+              <HospitalProfilePage hospital={hospital} setHospital={setHospital} token={token} />
+            )}
+          </main>
+        </div>
       </div>
     </div>
   )
