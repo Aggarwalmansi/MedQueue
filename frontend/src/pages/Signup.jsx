@@ -1,115 +1,205 @@
 "use client"
 import React from "react"
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
-import { Link } from "react-router-dom";
+import "../styles/Signup.css"
+
 const Signup = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [role, setRole] = useState("USER")
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [passwordError, setPasswordError] = useState("")
   const { signup, error } = useAuth()
   const navigate = useNavigate()
 
+  const validatePassword = () => {
+    if (password.length < 8) {
+      setPasswordError("Password must be at least 8 characters")
+      return false
+    }
+    if (password !== confirmPassword) {
+      setPasswordError("Passwords do not match")
+      return false
+    }
+    setPasswordError("")
+    return true
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
+    
+    if (!validatePassword()) {
+      return
+    }
+
     setLoading(true)
-
-    if (password !== confirmPassword) {
-      alert("Passwords do not match")
-      setLoading(false)
-      return
-    }
-
-    if (password.length < 8) {
-      alert("Password must be at least 8 characters long")
-      setLoading(false)
-      return
-    }
-
     const result = await signup(email, password, role)
 
     if (result.success) {
-      navigate(`/dashboard`)
+      navigate("/dashboard")
     }
     setLoading(false)
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-3xl font-bold text-center mb-8 text-blue-600">MedQueue</h2>
-        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Create Account</h1>
+    <div className="signup-container">
+      <div className="signup-gradient-side">
+        <div className="signup-gradient-content">
+          <div className="signup-logo">MedQueue</div>
+          <h2 className="signup-gradient-title">Start Saving Lives</h2>
+          <p className="signup-gradient-subtitle">Join thousands using MedQueue to find available hospital beds instantly during emergencies.</p>
+          
+          <div className="signup-benefits">
+            <div className="signup-benefit-item">
+              <div className="signup-benefit-icon">1</div>
+              <div>
+                <h4>For Patients</h4>
+                <p>Find nearest hospitals with available beds</p>
+              </div>
+            </div>
+            <div className="signup-benefit-item">
+              <div className="signup-benefit-icon">2</div>
+              <div>
+                <h4>For Managers</h4>
+                <p>Track and manage bed availability</p>
+              </div>
+            </div>
+            <div className="signup-benefit-item">
+              <div className="signup-benefit-icon">3</div>
+              <div>
+                <h4>For Admins</h4>
+                <p>System oversight and analytics</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        {error && <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-              placeholder="you@example.com"
-              required
-            />
+      <div className="signup-form-side">
+        <div className="signup-form-wrapper">
+          <div className="signup-form-header">
+            <h1>Create Account</h1>
+            <p>Join MedQueue in 3 simple steps</p>
           </div>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Role</label>
-            <select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
+          {error && (
+            <div className="signup-error-box">
+              <span className="signup-error-icon">⚠</span>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="signup-form">
+            <div className="signup-input-group">
+              <label htmlFor="email" className="signup-label">Email Address</label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="signup-input"
+                placeholder="name@example.com"
+                required
+              />
+            </div>
+
+            <div className="signup-input-group">
+              <label htmlFor="role" className="signup-label">Account Type</label>
+              <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="signup-input signup-select"
+              >
+                <option value="USER">Patient - Find hospital beds</option>
+                <option value="HOSPITAL_MANAGER">Hospital Manager - Manage beds</option>
+                <option value="ADMIN">Admin - System oversight</option>
+              </select>
+            </div>
+
+            <div className="signup-input-group">
+              <label htmlFor="password" className="signup-label">Password</label>
+              <div className="signup-password-wrapper">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="signup-input"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  className="signup-password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+              <p className="signup-hint">At least 8 characters</p>
+            </div>
+
+            <div className="signup-input-group">
+              <label htmlFor="confirm-password" className="signup-label">Confirm Password</label>
+              <div className="signup-password-wrapper">
+                <input
+                  id="confirm-password"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="signup-input"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  className="signup-password-toggle"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+            </div>
+
+            {passwordError && (
+              <div className="signup-password-error">
+                {passwordError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="signup-button"
             >
-              <option value="USER">Patient</option>
-              <option value="HOSPITAL_MANAGER">Hospital Manager</option>
-              <option value="ADMIN">Admin</option>
-            </select>
-          </div>
+              {loading ? (
+                <>
+                  <span className="signup-spinner"></span>
+                  Creating account...
+                </>
+              ) : (
+                "Create Account"
+              )}
+            </button>
+          </form>
 
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-              placeholder="••••••••"
-              required
-            />
-          </div>
+          <p className="signup-signin-text">
+            Already have an account?{" "}
+            <Link to="/login" className="signup-signin-link">
+              Sign in
+            </Link>
+          </p>
 
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Confirm Password</label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-              placeholder="••••••••"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition disabled:bg-gray-400"
-          >
-            {loading ? "Creating Account..." : "Sign Up"}
-          </button>
-        </form>
-
-        <p className="text-center text-gray-600 mt-4">
-          Already have an account?{" "}
-          <Link to="/login" className="text-blue-600 font-bold hover:underline">
-            Login
-          </Link>
-        </p>
+          <p className="signup-footer-text">
+            By creating an account, you agree to our Terms of Service and Privacy Policy
+          </p>
+        </div>
       </div>
     </div>
   )

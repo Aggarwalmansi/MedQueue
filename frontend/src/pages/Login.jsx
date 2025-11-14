@@ -1,14 +1,16 @@
 "use client"
 import React from "react"
+
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
-import { Link } from "react-router-dom";
+import "../styles/Login.css"
 
 const Login = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
   const { login, error } = useAuth()
   const navigate = useNavigate()
 
@@ -25,53 +27,111 @@ const Login = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-md">
-        <h2 className="text-3xl font-bold text-center mb-8 text-blue-600">MedQueue</h2>
-        <h1 className="text-2xl font-bold mb-6 text-center text-gray-800">Login</h1>
+    <div className="login-container">
+      <div className="login-gradient-side">
+        <div className="login-gradient-content">
+          <div className="login-logo">MedQueue</div>
+          <h2 className="login-gradient-title">Welcome Back</h2>
+          <p className="login-gradient-subtitle">Find hospital beds near you in seconds. Emergency-ready. Real-time. Life-saving.</p>
+          
+          <div className="login-features">
+            <div className="login-feature-item">
+              <div className="login-feature-icon">✓</div>
+              <p>Real-time bed availability</p>
+            </div>
+            <div className="login-feature-item">
+              <div className="login-feature-icon">✓</div>
+              <p>Instant hospital search</p>
+            </div>
+            <div className="login-feature-item">
+              <div className="login-feature-icon">✓</div>
+              <p>Distance-based filtering</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        {error && <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-              placeholder="you@example.com"
-              required
-            />
+      <div className="login-form-side">
+        <div className="login-form-wrapper">
+          <div className="login-form-header">
+            <h1>Sign In</h1>
+            <p>Access your MedQueue account</p>
           </div>
 
-          <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500"
-              placeholder="••••••••"
-              required
-            />
+          {error && (
+            <div className="login-error-box">
+              <span className="login-error-icon">⚠</span>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="login-input-group">
+              <label htmlFor="email" className="login-label">Email Address</label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="login-input"
+                placeholder="name@example.com"
+                required
+              />
+            </div>
+
+            <div className="login-input-group">
+              <label htmlFor="password" className="login-label">Password</label>
+              <div className="login-password-wrapper">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="login-input"
+                  placeholder="••••••••"
+                  required
+                />
+                <button
+                  type="button"
+                  className="login-password-toggle"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? "Hide" : "Show"}
+                </button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="login-button"
+            >
+              {loading ? (
+                <>
+                  <span className="login-spinner"></span>
+                  Signing in...
+                </>
+              ) : (
+                "Sign In"
+              )}
+            </button>
+          </form>
+
+          <div className="login-divider">
+            <span>or</span>
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-bold hover:bg-blue-700 transition disabled:bg-gray-400"
-          >
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+          <p className="login-signup-text">
+            Don't have an account?{" "}
+            <Link to="/signup" className="login-signup-link">
+              Create one
+            </Link>
+          </p>
 
-        <p className="text-center text-gray-600 mt-4">
-          Don't have an account?{" "}
-          <Link to="/signup" className="text-blue-600 font-bold hover:underline">
-            Sign Up
-          </Link>
-        </p>
+          <p className="login-footer-text">
+            By signing in, you agree to our Terms of Service and Privacy Policy
+          </p>
+        </div>
       </div>
     </div>
   )
