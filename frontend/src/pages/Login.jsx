@@ -1,7 +1,7 @@
 "use client"
 import React from "react"
 import { useState } from "react"
-import { Links, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 
 const Login = () => {
@@ -67,9 +67,9 @@ const Login = () => {
 
         <p className="text-center text-gray-600 mt-4">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-blue-600 font-bold hover:underline">
+          <a href="/signup" className="text-blue-600 font-bold hover:underline">
             Sign Up
-          </Link>
+          </a>
         </p>
       </div>
     </div>
