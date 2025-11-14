@@ -16,7 +16,8 @@ export default function BookingManagement({ hospital, token }) {
   const fetchBookings = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:5000/api/bookings/hospital/${hospital.id}/status/${activeTab}`, {
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
+      const response = await fetch(`${apiUrl}/api/bookings/hospital/${hospital.id}/status/${activeTab}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
@@ -32,7 +33,8 @@ export default function BookingManagement({ hospital, token }) {
 
   const handleApprove = async (bookingId) => {
     try {
-      const response = await fetch(`http://localhost:5001/api/bookings/${bookingId}/approve`, {
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
+      const response = await fetch(`${apiUrl}/api/bookings/${bookingId}/approve`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -46,7 +48,8 @@ export default function BookingManagement({ hospital, token }) {
 
   const handleReject = async (bookingId) => {
     try {
-      const response = await fetch(`http://localhost:5001/api/bookings/${bookingId}/reject`, {
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
+      const response = await fetch(`${apiUrl}/api/bookings/${bookingId}/reject`, {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
       })

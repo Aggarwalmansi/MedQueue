@@ -22,7 +22,8 @@ export const AuthProvider = ({ children }) => {
 
   const verifyToken = async (authToken) => {
     try {
-      const response = await fetch("http://localhost:5001/api/auth/verify-token", {
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
+      const response = await fetch(`${apiUrl}/api/auth/verify-token`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -46,7 +47,8 @@ export const AuthProvider = ({ children }) => {
 
   const fetchCurrentUser = async (authToken) => {
     try {
-      const response = await fetch("http://localhost:5001/api/auth/me", {
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
+      const response = await fetch(`${apiUrl}/api/auth/me`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },

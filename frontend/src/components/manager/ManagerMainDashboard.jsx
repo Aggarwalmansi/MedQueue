@@ -14,11 +14,12 @@ export default function ManagerMainDashboard({ hospital, token }) {
 
   const fetchData = async () => {
     try {
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
       const [statsRes, bookingsRes] = await Promise.all([
-        fetch(`http://localhost:5001/api/beds/stats/${hospital.id}`, {
+        fetch(`${apiUrl}/api/beds/stats/${hospital.id}`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
-        fetch(`http://localhost:5001/api/bookings/hospital/${hospital.id}/status/PENDING`, {
+        fetch(`${apiUrl}/api/bookings/hospital/${hospital.id}/status/PENDING`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ])

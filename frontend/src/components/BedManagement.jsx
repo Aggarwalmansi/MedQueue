@@ -19,7 +19,7 @@ export default function BedManagement({ hospitalId, token, onUpdate }) {
   const fetchBeds = async () => {
     try {
       setLoading(true)
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001"
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
       const response = await fetch(`${apiUrl}/api/beds/hospital/${hospitalId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })

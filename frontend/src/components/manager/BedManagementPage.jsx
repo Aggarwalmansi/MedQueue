@@ -32,7 +32,8 @@ export default function BedManagementPage({ hospital, token }) {
 
   const handleStatusChange = async (bedId, newStatus) => {
     try {
-      const response = await fetch(`http://localhost:5001/api/beds/${bedId}`, {
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
+      const response = await fetch(`${apiUrl}/api/beds/${bedId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

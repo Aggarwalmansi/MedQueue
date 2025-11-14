@@ -30,7 +30,7 @@ export default function AddBedForm({ hospitalId, token, onBedAdded, onCancel }) 
     try {
       setLoading(true)
       setError(null)
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001"
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
       const response = await fetch(`${apiUrl}/api/beds`, {
         method: "POST",
         headers: {

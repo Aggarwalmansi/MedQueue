@@ -17,8 +17,10 @@ export default function AdminDashboard() {
 
   const fetchAdminStats = async () => {
     try {
+
       setLoading(true)
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001"
+
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
 
       // In production, this would call an actual admin API endpoint
       setStats({

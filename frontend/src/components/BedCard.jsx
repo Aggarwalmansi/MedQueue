@@ -13,7 +13,7 @@ export default function BedCard({ bed, token, onUpdated, onDeleted }) {
 
     try {
       setIsUpdating(true)
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001"
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
       const response = await fetch(`${apiUrl}/api/beds/${bed.id}`, {
         method: "PUT",
         headers: {
@@ -38,7 +38,7 @@ export default function BedCard({ bed, token, onUpdated, onDeleted }) {
     if (!window.confirm(`Delete bed ${bed.bedNumber}?`)) return
 
     try {
-      const apiUrl = process.env.REACT_APP_API_URL || "http://localhost:5001"
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
       const response = await fetch(`${apiUrl}/api/beds/${bed.id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },

@@ -30,7 +30,8 @@ export default function ManagerDashboard() {
 
   const fetchHospitalData = async () => {
     try {
-      const response = await fetch(`http://localhost:5001/api/hospitals/${user.hospitalId}`, {
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
+      const response = await fetch(`${apiUrl}/api/hospitals/${user.hospitalId}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
