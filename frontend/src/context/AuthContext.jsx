@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
 
   const verifyToken = async (authToken) => {
     try {
-      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
+      const apiUrl = "https://medqueue-0hmm.onrender.com"
       const response = await fetch(`${apiUrl}/api/auth/verify-token`, {
         method: "POST",
         headers: {
