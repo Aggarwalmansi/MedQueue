@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 
 router.get("/hospital/:hospitalId", authMiddleware, async (req, res) => {
   try {
-    // Verify manager owns this hospital
+
     if (req.user.role === "HOSPITAL_MANAGER" && req.user.hospitalId !== req.params.hospitalId) {
       return res.status(403).json({ error: "Unauthorized" })
     }

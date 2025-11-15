@@ -71,7 +71,8 @@ export const AuthProvider = ({ children }) => {
   const signup = async (email, password, role) => {
     setError(null)
     try {
-      const response = await fetch("http://localhost:5001/api/auth/signup", {
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
+      const response = await fetch(`${apiUrl}/api/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, role }),
@@ -102,7 +103,8 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setError(null)
     try {
-      const response = await fetch("http://localhost:5001/api/auth/login", {
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
