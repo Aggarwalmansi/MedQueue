@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -6,50 +9,61 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
 enum Role {
   USER
   HOSPITAL_MANAGER
   ADMIN
 }
+
 enum BedType {
   GENERAL
   ICU
   PEDIATRIC
   VENTILATOR
 }
+
 enum BedStatus {
   AVAILABLE
   OCCUPIED
   MAINTENANCE
 }
 
-model User{
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+  CANCELLED
+}
+
+model User {
   id       String  @id @default(uuid())
   email    String  @unique
   password String
   role     Role    @default(USER)
   hospitalId String?
   hospital   Hospital? @relation(fields: [hospitalId], references: [id])
+  bookings   Booking[]
+  resetToken String? @unique
+  resetTokenExpiry DateTime?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
 model Hospital {
   id            String @id @default(uuid())
   name          String
   address       String
-  state         String?
-  city          String?
   contactPhone  String?
   latitude      Float
   longitude     Float
-  managers      User[] // Hospital has many managers
-  beds          Bed[]  // Hospital has many beds
+  managers      User[]
+  beds          Bed[]
+  bookings      Booking[]
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   @@index([name])
-  @@index([state])
-  @@index([city])
 }
 
 model Bed {
@@ -59,10 +73,29 @@ model Bed {
   bedNumber  String
   hospitalId String
   hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  bookings   Booking[]
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
   @@unique([hospitalId, bedNumber])
+  @@index([hospitalId])
+  @@index([status])
+}
+
+model Booking {
+  id           String @id @default(uuid())
+  userId       String
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bedId        String?
+  bed          Bed? @relation(fields: [bedId], references: [id], onDelete: SetNull)
+  hospitalId   String
+  hospital     Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  bedType      BedType
+  status       BookingStatus @default(PENDING)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
   @@index([hospitalId])
   @@index([status])
 }

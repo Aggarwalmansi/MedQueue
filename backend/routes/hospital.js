@@ -39,11 +39,8 @@ router.get("/nearest", async (req, res) => {
     const parsedRadius = radius ? Number.parseInt(radius) : defaultRadius
 
     if (!latitude || !longitude) {
-
-  const hospitals = await prisma.hospital.findMany();
-  return res.json({ success: true, count: hospitals.length, data: hospitals });
-}
-
+      return res.status(400).json({ error: "Latitude and longitude required" })
+    }
 
     const lat = Number.parseFloat(latitude)
     const lng = Number.parseFloat(longitude)
@@ -86,6 +83,55 @@ router.get("/nearest", async (req, res) => {
     res.json(nearbyHospitals)
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch nearby hospitals" })
+  }
+})
+
+router.get("/all-with-beds", authMiddleware, async (req, res) => {
+  try {
+    const hospitals = await prisma.hospital.findMany({
+      include: {
+        beds: {
+          where: {
+            status: "AVAILABLE",
+          },
+          select: {
+            id: true,
+            type: true,
+            status: true,
+            bedNumber: true,
+          },
+        },
+      },
+    })
+
+    const hospitalData = hospitals
+      .map((hospital) => ({
+        id: hospital.id,
+        name: hospital.name,
+        address: hospital.address,
+        city: hospital.address.split(",").pop()?.trim() || "Unknown",
+        contactPhone: hospital.contactPhone,
+        latitude: hospital.latitude,
+        longitude: hospital.longitude,
+        totalAvailableBeds: hospital.beds.length,
+        availableBedsByType: hospital.beds.reduce((acc, bed) => {
+          acc[bed.type] = (acc[bed.type] || 0) + 1
+          return acc
+        }, {}),
+      }))
+      .filter((h) => h.totalAvailableBeds > 0)
+
+    res.json({
+      success: true,
+      count: hospitalData.length,
+      data: hospitalData,
+    })
+  } catch (error) {
+    console.error("Error fetching hospitals:", error)
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch hospitals",
+    })
   }
 })
 
@@ -139,7 +185,7 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 })
 
-router.put("/:id",  authMiddleware, async (req, res) => {
+router.put("/:id", authMiddleware, async (req, res) => {
   try {
     if (req.user.role !== "ADMIN") {
       return res.status(403).json({ error: "Only admins can update hospitals" })

@@ -1,14 +1,13 @@
 const express = require("express")
-const {PrismaClient} = require("@prisma/client")
-const {hashPassword, comparePassword} = require("../utils/password.js")
-const {generateToken} = require("../utils/jwt.js")
-const {authMiddleware} = require("../middleware/auth.js")
-
+const { PrismaClient } = require("@prisma/client")
+const { hashPassword, comparePassword } = require("../utils/password.js")
+const { generateToken } = require("../utils/jwt.js")
+const { authMiddleware } = require("../middleware/auth.js")
 
 const router = express.Router()
 const prisma = new PrismaClient()
 
-
+// Validation helpers
 const validateEmail = (email) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   return emailRegex.test(email)
@@ -18,11 +17,11 @@ const validatePassword = (password) => {
   return password && password.length >= 8
 }
 
+// SIGNUP
 router.post("/signup", async (req, res) => {
   try {
     const { email, password, role } = req.body
 
-  
     if (!email || !password || !role) {
       return res.status(400).json({
         success: false,
@@ -52,18 +51,13 @@ router.post("/signup", async (req, res) => {
       })
     }
 
-
-    const existingUser = await prisma.user.findUnique({
-      where: { email },
-    })
-
+    const existingUser = await prisma.user.findUnique({ where: { email } })
     if (existingUser) {
       return res.status(409).json({
         success: false,
         message: "Email already registered",
       })
     }
-
 
     const hashedPassword = await hashPassword(password)
 
@@ -74,7 +68,6 @@ router.post("/signup", async (req, res) => {
         role,
       },
     })
-
 
     const token = generateToken(user.id, user.role)
 
@@ -97,11 +90,10 @@ router.post("/signup", async (req, res) => {
   }
 })
 
-
+// LOGIN
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body
-
 
     if (!email || !password) {
       return res.status(400).json({
@@ -110,11 +102,7 @@ router.post("/login", async (req, res) => {
       })
     }
 
-
-    const user = await prisma.user.findUnique({
-      where: { email },
-    })
-
+    const user = await prisma.user.findUnique({ where: { email } })
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -122,16 +110,13 @@ router.post("/login", async (req, res) => {
       })
     }
 
-
     const isPasswordValid = await comparePassword(password, user.password)
-
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
         message: "Invalid email or password",
       })
     }
-
 
     const token = generateToken(user.id, user.role)
 
@@ -154,17 +139,12 @@ router.post("/login", async (req, res) => {
   }
 })
 
-
+// GET CURRENT USER
 router.get("/me", authMiddleware, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      },
+      select: { id: true, email: true, role: true, createdAt: true },
     })
 
     if (!user) {
@@ -174,47 +154,116 @@ router.get("/me", authMiddleware, async (req, res) => {
       })
     }
 
-    res.status(200).json({
-      success: true,
-      data: user,
-    })
+    res.status(200).json({ success: true, data: user })
   } catch (error) {
     console.error("Get user error:", error)
-    res.status(500).json({
-      success: false,
-      message: "Error fetching user data",
-    })
+    res.status(500).json({ success: false, message: "Error fetching user data" })
   }
 })
 
-
+// LOGOUT
 router.post("/logout", authMiddleware, async (req, res) => {
   try {
-    res.status(200).json({
-      success: true,
-      message: "Logged out successfully",
-    })
+    res.status(200).json({ success: true, message: "Logged out successfully" })
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error during logout",
-    })
+    res.status(500).json({ success: false, message: "Error during logout" })
   }
 })
 
-
+// VERIFY TOKEN
 router.post("/verify-token", authMiddleware, async (req, res) => {
   try {
+    res.status(200).json({ success: true, message: "Token is valid", data: req.user })
+  } catch (error) {
+    res.status(401).json({ success: false, message: "Invalid token" })
+  }
+})
+
+// FORGOT PASSWORD
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body
+
+    if (!email || !validateEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid email is required",
+      })
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "No account found with this email",
+      })
+    }
+
+    const resetToken =
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15)
+    const resetTokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000)
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { resetToken, resetTokenExpiry },
+    })
+
+    console.log(`Reset token for ${email}: ${resetToken}`)
+
     res.status(200).json({
       success: true,
-      message: "Token is valid",
-      data: req.user,
+      message: "Password reset instructions sent to email",
+      testToken: resetToken,
     })
   } catch (error) {
-    res.status(401).json({
-      success: false,
-      message: "Invalid token",
+    console.error("Forgot password error:", error)
+    res.status(500).json({ success: false, message: "Error processing request" })
+  }
+})
+
+// RESET PASSWORD
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { email, resetToken, newPassword } = req.body
+
+    if (!email || !resetToken || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: "Email, reset token, and new password are required",
+      })
+    }
+
+    if (!validatePassword(newPassword)) {
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 8 characters long",
+      })
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } })
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" })
+    }
+
+    if (user.resetToken !== resetToken) {
+      return res.status(400).json({ success: false, message: "Invalid reset token" })
+    }
+
+    if (new Date() > user.resetTokenExpiry) {
+      return res.status(400).json({ success: false, message: "Reset token has expired" })
+    }
+
+    const hashedPassword = await hashPassword(newPassword)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedPassword, resetToken: null, resetTokenExpiry: null },
     })
+
+    res.status(200).json({ success: true, message: "Password reset successfully" })
+  } catch (error) {
+    console.error("Reset password error:", error)
+    res.status(500).json({ success: false, message: "Error resetting password" })
   }
 })
 
