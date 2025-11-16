@@ -7,6 +7,8 @@ import Signup from "./pages/Signup"
 import Dashboard from "./pages/Dashboard"
 import Unauthorized from "./pages/Unauthorised"
 import HomePage from "./pages/HomePage"
+import ResetPassword from "./pages/ResetPassword"
+import ForgotPassword from "./pages/ForgotPassword"
 function App() {
   return (
     <BrowserRouter>
@@ -15,6 +17,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
 
           <Route

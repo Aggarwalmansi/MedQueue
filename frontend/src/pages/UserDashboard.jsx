@@ -7,165 +7,223 @@ import "../styles/UserDashboard.css"
 export default function UserDashboard() {
   const { token } = useAuth()
   const [hospitals, setHospitals] = useState([])
-  const [bedType, setBedType] = useState("")
-  const [loading, setLoading] = useState(false)
+  const [filteredHospitals, setFilteredHospitals] = useState([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [hasSearched, setHasSearched] = useState(false)
+  
+  const [searchQuery, setSearchQuery] = useState("")
+  const [bedType, setBedType] = useState("")
+  const [sortBy, setSortBy] = useState("name")
+  const [useLocation, setUseLocation] = useState(false)
   const [userLocation, setUserLocation] = useState(null)
   const [searchRadius, setSearchRadius] = useState(50)
-  
+  const [locationEnabled, setLocationEnabled] = useState(false)
 
+  // Load all hospitals on component mount
   useEffect(() => {
-  const fetchAllHospitals = async () => {
-    try {
-      setLoading(true)
-      const apiUrl = import.meta.env.VITE_BACKEND_URL;
-      const response = await fetch(`${apiUrl}/api/hospitals/all`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      })
-      const data = await response.json()
-      setHospitals(data || [])
-    } catch (err) {
-      console.error("Error loading hospitals:", err)
-    } finally {
-      setLoading(false)
-    }
-  }
+    fetchAllHospitals()
+  }, [])
 
-  fetchAllHospitals()
-}, [token])
-
+  // Get user location when location is enabled
   useEffect(() => {
-    if (navigator.geolocation) {
+    if (useLocation && !userLocation && navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setUserLocation({
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
           })
+          setLocationEnabled(true)
         },
         (error) => {
           console.log("Geolocation error:", error)
-          setError("Please enable location access to find nearby hospitals")
+          setError("Unable to access your location. Please enable location permissions.")
+          setUseLocation(false)
         },
       )
     }
-  }, [])
+  }, [useLocation])
 
-  const handleSearch = async () => {
-    if (!userLocation) {
-      setError("Location access required. Please enable location permissions.")
-      return
-    }
+  // Filter and sort hospitals whenever dependencies change
+  useEffect(() => {
+    filterAndSortHospitals()
+  }, [hospitals, searchQuery, bedType, sortBy, useLocation, userLocation, searchRadius])
 
+  const fetchAllHospitals = async () => {
     try {
       setLoading(true)
       setError(null)
-      setHasSearched(true)
 
-      const apiUrl = import.meta.env.VITE_BACKEND_URL;
-
-      const query = new URLSearchParams()
-      query.append("latitude", userLocation.latitude)
-      query.append("longitude", userLocation.longitude)
-      if (bedType) {
-        query.append("bedType", bedType)
-      }
-      query.append("radius", searchRadius)
-
-      console.log("[v0] Search API URL:", `${apiUrl}/api/hospitals?${query}`)
-      console.log("[v0] User Location:", userLocation)
-      console.log("[v0] Auth Token:", token ? "Present" : "Missing")
-
-      // const response = await fetch(`${apiUrl}/api/hospitals?${query}`, {
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
       const response = await fetch(`${apiUrl}/api/hospitals/all`, {
-
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       })
 
-      console.log("[v0] API Response Status:", response.status)
-
       if (!response.ok) {
-        const errorData = await response.json()
-        console.log("[v0] Error Data:", errorData)
-        throw new Error(errorData.message || "Failed to search hospitals")
+        throw new Error("Failed to fetch hospitals")
       }
-      
-      const data = await response.json()
-      console.log("[v0] Search Results:", data.length)
-      setHospitals(data || [])
-      console.log("this is the hospital : ", data )
 
-      if (data.length === 0) {
-        setError("No hospitals with available beds found in your area. Try increasing the search radius.")
-      }
+      const data = await response.json()
+      setHospitals(data || [])
     } catch (err) {
-      setError(err.message || "Error searching hospitals")
-      console.error("[v0] Search error:", err)
+      setError(err.message || "Error loading hospitals")
+      console.error("Fetch error:", err)
     } finally {
       setLoading(false)
     }
   }
 
+  const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    const R = 6371
+    const dLat = ((lat2 - lat1) * Math.PI) / 180
+    const dLon = ((lon2 - lon1) * Math.PI) / 180
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    return R * c
+  }
+
+  const filterAndSortHospitals = () => {
+    let filtered = [...hospitals]
+
+    // Filter by search query (hospital name or city)
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase()
+      filtered = filtered.filter(
+        (h) =>
+          h.name.toLowerCase().includes(query) ||
+          h.city.toLowerCase().includes(query),
+      )
+    }
+
+    // Filter by bed type
+    if (bedType) {
+      filtered = filtered.filter((h) => h.availableBedsByType[bedType])
+    }
+
+    // Filter by location if enabled
+    if (useLocation && userLocation) {
+      filtered = filtered
+        .map((h) => ({
+          ...h,
+          distance: calculateDistance(
+            userLocation.latitude,
+            userLocation.longitude,
+            h.latitude,
+            h.longitude,
+          ),
+        }))
+        .filter((h) => h.distance <= searchRadius)
+    }
+
+    // Sort hospitals
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case "name":
+          return a.name.localeCompare(b.name)
+        case "city":
+          return a.city.localeCompare(b.city)
+        case "beds":
+          return b.totalAvailableBeds - a.totalAvailableBeds
+        case "distance":
+          return (a.distance || 0) - (b.distance || 0)
+        default:
+          return 0
+      }
+    })
+
+    setFilteredHospitals(filtered)
+  }
+
   return (
     <div className="user-dashboard">
-      {/* Hero Search Section */}
+      {/* Hero Section */}
       <div className="search-hero">
         <div className="search-container">
           <h1 className="search-title">Find Hospital Beds Near You</h1>
           <p className="search-subtitle">Emergency-ready bed availability in real-time</p>
 
-          {/* Search Controls */}
-          <div className="search-controls">
-            <div className="bed-type-selector">
-              <label htmlFor="bed-type" className="selector-label">
-                Bed Type (Optional)
-              </label>
-              <select id="bed-type" value={bedType} onChange={(e) => setBedType(e.target.value)} className="bed-select">
-                <option value="">Any Type</option>
+          {/* Search Bar */}
+          <div className="search-bar-container">
+            <input
+              type="text"
+              placeholder="Search by hospital name or city..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="search-input"
+            />
+            <span className="search-icon">🔍</span>
+          </div>
+
+          {/* Filter Controls */}
+          <div className="filter-controls">
+            <div className="filter-group">
+              <label className="filter-label">Bed Type</label>
+              <select
+                value={bedType}
+                onChange={(e) => setBedType(e.target.value)}
+                className="filter-select"
+              >
+                <option value="">All Types</option>
                 <option value="ICU">ICU</option>
                 <option value="GENERAL">General</option>
-                <option value="ISOLATION">Isolation</option>
                 <option value="PEDIATRIC">Pediatric</option>
-                <option value="CARDIAC">Cardiac</option>
+                <option value="VENTILATOR">Ventilator</option>
               </select>
             </div>
 
-            <div className="radius-selector">
-              <label htmlFor="search-radius" className="selector-label">
-                Search Radius: {searchRadius} km
-              </label>
-              <input
-                id="search-radius"
-                type="range"
-                min="10"
-                max="100"
-                value={searchRadius}
-                onChange={(e) => setSearchRadius(Number(e.target.value))}
-                className="radius-slider"
-              />
+            <div className="filter-group">
+              <label className="filter-label">Sort By</label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="filter-select"
+              >
+                <option value="name">Hospital Name</option>
+                <option value="city">City</option>
+                <option value="beds">Available Beds</option>
+                {useLocation && <option value="distance">Distance</option>}
+              </select>
             </div>
 
-            <button
-              onClick={handleSearch}
-              disabled={loading || !userLocation}
-              className={`find-button ${loading ? "loading" : ""}`}
-            >
-              {loading ? (
-                <>
-                  <span className="spinner"></span>
-                  Searching...
-                </>
-              ) : (
-                "Find Beds Near Me"
+            {/* Location Toggle */}
+            <div className="filter-group location-toggle">
+              <label className="toggle-label">
+                <input
+                  type="checkbox"
+                  checked={useLocation}
+                  onChange={(e) => {
+                    setUseLocation(e.target.checked)
+                    if (!e.target.checked) {
+                      setUserLocation(null)
+                      setLocationEnabled(false)
+                    }
+                  }}
+                  className="toggle-checkbox"
+                />
+                <span className="toggle-text">Use My Location</span>
+              </label>
+              {useLocation && locationEnabled && (
+                <div className="radius-control">
+                  <label className="radius-label">Radius: {searchRadius} km</label>
+                  <input
+                    type="range"
+                    min="10"
+                    max="100"
+                    value={searchRadius}
+                    onChange={(e) => setSearchRadius(Number(e.target.value))}
+                    className="radius-slider"
+                  />
+                </div>
               )}
-            </button>
+            </div>
           </div>
 
           {error && <div className="error-message">{error}</div>}
@@ -173,61 +231,73 @@ export default function UserDashboard() {
       </div>
 
       {/* Results Section */}
-      {hasSearched && (
-        <div className="results-section">
-          {hospitals.length > 0 ? (
-            <>
-              <div className="results-header">
-                <h2 className="results-count">
-                  Found {hospitals.length} hospital{hospitals.length !== 1 ? "s" : ""} with available beds
-                </h2>
-              </div>
+      <div className="results-section">
+        {loading ? (
+          <div className="loading-state">
+            <div className="spinner"></div>
+            <p>Loading hospitals...</p>
+          </div>
+        ) : filteredHospitals.length > 0 ? (
+          <>
+            <div className="results-header">
+              <h2 className="results-count">
+                Found {filteredHospitals.length} hospital{filteredHospitals.length !== 1 ? "s" : ""} with available beds
+              </h2>
+            </div>
 
-              <div className="hospitals-list">
-                {hospitals.map((hospital) => (
-                  <div key={hospital.id} className="hospital-card">
-                    <div className="card-header">
-                      <div className="hospital-info">
-                        <h3 className="hospital-name">{hospital.name}</h3>
-                        <p className="hospital-address">{hospital.address}</p>
-                      </div>
+            <div className="hospitals-list">
+              {filteredHospitals.map((hospital) => (
+                <div key={hospital.id} className="hospital-card">
+                  <div className="card-header">
+                    <div className="hospital-info">
+                      <h3 className="hospital-name">{hospital.name}</h3>
+                      <p className="hospital-address">{hospital.address}</p>
+                    </div>
+                    {hospital.distance !== undefined && (
                       <div className="distance-badge">
-                        <span className="distance-value">{hospital.distance}</span>
+                        <span className="distance-value">{hospital.distance.toFixed(1)}</span>
                         <span className="distance-unit">km</span>
                       </div>
-                    </div>
-
-                    <div className="card-body">
-                      <div className="available-beds">
-                        <p className="beds-label">Available Beds</p>
-                        <p className="beds-count">{hospital.totalAvailableBeds}</p>
-                      </div>
-                      {console.log("hospital available beds by type: ", hospital.availableBedsByType)}
-                      {hospital.availableBedsByType && Object.keys(hospital.availableBedsByType).length > 0 && (
-                      
-                        <div className="bed-types">
-                          {Object.entries(hospital.availableBedsByType).map(([type, count]) => (
-                            <span key={type} className="bed-type-tag">
-                              {count} {type}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="card-footer">
-                      <Link to={`tel:${hospital.contactPhone}`} className="contact-link">
-                        Call Now
-                      </Link>
-                      <button className="details-button">View Details</button>
-                    </div>
+                    )}
                   </div>
-                ))}
-              </div>
-            </>
-          ) : null}
-        </div>
-      )}
+
+                  <div className="card-body">
+                    <div className="available-beds">
+                      <p className="beds-label">Available Beds</p>
+                      <p className="beds-count">{hospital.totalAvailableBeds}</p>
+                    </div>
+
+                    {hospital.availableBedsByType && Object.keys(hospital.availableBedsByType).length > 0 && (
+                      <div className="bed-types">
+                        {Object.entries(hospital.availableBedsByType).map(([type, count]) => (
+                          <span key={type} className="bed-type-tag">
+                            {count} {type}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="card-footer">
+                    <a href={`tel:${hospital.contactPhone}`} className="contact-link">
+                      📞 Call Now
+                    </a>
+                    <button className="details-button">View Details</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="no-results">
+            <p className="no-results-text">
+              {searchQuery || bedType || useLocation
+                ? "No hospitals match your search criteria. Try adjusting your filters."
+                : "No hospitals available at the moment."}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

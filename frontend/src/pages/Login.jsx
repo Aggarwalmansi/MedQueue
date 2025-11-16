@@ -1,6 +1,5 @@
 "use client"
 import React from "react"
-
 import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
@@ -99,6 +98,9 @@ const Login = () => {
                   {showPassword ? "Hide" : "Show"}
                 </button>
               </div>
+              <Link to="/forgot-password" className="login-forgot-link">
+                Forgot password?
+              </Link>
             </div>
 
             <button
