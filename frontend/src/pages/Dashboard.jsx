@@ -5,6 +5,7 @@ import { useAuth } from "../context/AuthContext"
 import Header from "../components/Header"
 import ManagerDashboard from "./ManagerDashboard"
 import UserDashboard from "./UserDashboard"
+import PatientDashboard from "./PatientDashboard"
 import AdminDashboard from "./AdminDashboard"
 
 const Dashboard = () => {
@@ -21,12 +22,12 @@ const Dashboard = () => {
     switch (user?.role) {
       case "ADMIN":
         return <AdminDashboard />
-      case "HOSPITAL_MANAGER":
+      case "HOSPITAL":
         return <ManagerDashboard />
-      case "USER":
-        return <UserDashboard />
+      case "PATIENT":
+        return <PatientDashboard />
       default:
-        return <div className="p-8 text-center">Unknown role</div>
+        return <div className="p-8 text-center">Unknown role: {user?.role}</div>
     }
   }
 

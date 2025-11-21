@@ -1,5 +1,7 @@
 
 const {verifyToken} = require("../utils/jwt")
+const { generateToken } = require("../utils/jwt")
+const passport = require("passport")
 
  const authMiddleware = (req, res, next) => {
   try {
@@ -30,6 +32,7 @@ const {verifyToken} = require("../utils/jwt")
     })
   }
 }
+
 
 const roleMiddleware = (allowedRoles) => {
   return (req, res, next) => {

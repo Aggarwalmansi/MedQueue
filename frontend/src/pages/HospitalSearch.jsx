@@ -1,6 +1,7 @@
 "use client"
 import React from "react"
 import { useState, useEffect } from "react"
+import { io } from 'socket.io-client';
 import "../styles/HospitalSearch.css"
 
 export default function HospitalSearch() {
@@ -30,6 +31,39 @@ export default function HospitalSearch() {
     }
   }, [])
 
+  // Socket.io connection for real-time updates
+  useEffect(() => {
+    const socket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:3000");
+
+    socket.on('hospital_updated_public', (updatedHospital) => {
+      setHospitals(prevHospitals => prevHospitals.map(h => {
+        if (h.id === updatedHospital.id) {
+          // Recalculate total available beds based on the update
+          // Note: The backend update event returns the raw hospital object (bedsGeneral, bedsICU, etc.)
+          // But the search API returns a processed object (totalAvailableBeds, availableBedsByType).
+          // We need to map the raw update to the search result format.
+
+          const totalAvailableBeds = updatedHospital.bedsGeneral + updatedHospital.bedsICU + updatedHospital.bedsOxygen; // Assuming these are the types
+
+          return {
+            ...h,
+            ...updatedHospital, // Update raw fields
+            totalAvailableBeds, // Update calculated field
+            availableBedsByType: {
+              ...h.availableBedsByType,
+              GENERAL: updatedHospital.bedsGeneral,
+              ICU: updatedHospital.bedsICU,
+              VENTILATOR: updatedHospital.bedsOxygen // Mapping Oxygen to Ventilator for consistency if that's the convention
+            }
+          };
+        }
+        return h;
+      }));
+    });
+
+    return () => socket.close();
+  }, []);
+
   const handleSearch = async (e) => {
     e.preventDefault()
 
@@ -43,22 +77,43 @@ export default function HospitalSearch() {
       setError(null)
       const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
 
-      const query = new URLSearchParams()
-      query.append("latitude", latitude)
-      query.append("longitude", longitude)
-      query.append("radius", radius)
-      if (bedType !== "ALL") {
-        query.append("bedType", bedType)
-      }
+      // Note: The backend route in previous steps was /api/patient/hospitals (from patient.routes.js)
+      // But this file was calling /api/search/hospitals. 
+      // I should check if /api/search/hospitals exists or if I should use /api/patient/hospitals.
+      // Based on patient.routes.js, the route is /api/hospitals (mounted at /api in index.js? No, mounted at /api via patient.routes.js)
+      // Wait, index.js says: app.use("/api", require('./routes/patient.routes'));
+      // And patient.routes.js has router.get('/hospitals', ...)
+      // So the correct URL is /api/hospitals.
 
-      const response = await fetch(`${apiUrl}/api/search/hospitals?${query.toString()}`)
+      const query = new URLSearchParams()
+      query.append("lat", latitude) // Changed from latitude to lat to match backend
+      query.append("lng", longitude) // Changed from longitude to lng to match backend
+      // query.append("radius", radius) // Backend doesn't seem to use radius yet, but we can leave it or remove it.
+      // query.append("bedType", bedType) // Backend doesn't filter by bedType yet.
+
+      const response = await fetch(`${apiUrl}/api/hospitals?${query.toString()}`)
 
       if (!response.ok) {
         throw new Error("Failed to search hospitals")
       }
 
       const data = await response.json()
-      setHospitals(data.data || [])
+      // Backend returns array directly, not { data: [] }
+      // And backend returns fields like bedsGeneral, bedsICU, etc.
+      // We need to map this to the format expected by the UI if it differs.
+      // UI expects: totalAvailableBeds, availableBedsByType
+
+      const mappedData = data.map(h => ({
+        ...h,
+        totalAvailableBeds: h.bedsGeneral + h.bedsICU + h.bedsOxygen,
+        availableBedsByType: {
+          GENERAL: h.bedsGeneral,
+          ICU: h.bedsICU,
+          VENTILATOR: h.bedsOxygen
+        }
+      }));
+
+      setHospitals(mappedData)
       setSearched(true)
     } catch (err) {
       setError(err.message)

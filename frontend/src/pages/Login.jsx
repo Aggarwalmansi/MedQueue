@@ -4,6 +4,8 @@ import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
 import "../styles/Login.css"
+import GoogleLoginButton from "../components/GoogleLoginButton.jsx"
+import "../styles/GoogleLoginButton.css"
 
 const Login = () => {
   const [email, setEmail] = useState("")
@@ -121,6 +123,10 @@ const Login = () => {
 
           <div className="login-divider">
             <span>or</span>
+          </div>
+
+          <div style={{ marginTop: "20px", textAlign: "center" }}>
+            <GoogleLoginButton />
           </div>
 
           <p className="login-signup-text">

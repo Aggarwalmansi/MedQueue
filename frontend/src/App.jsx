@@ -9,14 +9,20 @@ import Unauthorized from "./pages/Unauthorised"
 import HomePage from "./pages/HomePage"
 import ResetPassword from "./pages/ResetPassword"
 import ForgotPassword from "./pages/ForgotPassword"
+import OAuthCallback from "./pages/OAuthCallback"
+
+import PatientDashboard from "./pages/PatientDashboard"
+
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/patient" element={<PatientDashboard />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/oauth-callback" element={<OAuthCallback />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
@@ -25,7 +31,7 @@ function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-              <Dashboard />
+                <Dashboard />
               </ProtectedRoute>
             }
           />

@@ -1,0 +1,274 @@
+/* AdminDashboard.css */
+.admin-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f3f4f6;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Sidebar */
+.admin-sidebar {
+    width: 260px;
+    background-color: #1a202c;
+    color: white;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+}
+
+.sidebar-header {
+    margin-bottom: 3rem;
+}
+
+.sidebar-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #63b3ed;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-menu {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.nav-item {
+    padding: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: #a0aec0;
+    font-weight: 500;
+}
+
+.nav-item:hover {
+    background-color: #2d3748;
+    color: white;
+}
+
+.nav-item.active {
+    background-color: #3182ce;
+    color: white;
+    box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+}
+
+/* Main Content */
+.admin-content {
+    flex: 1;
+    margin-left: 260px;
+    padding: 2rem;
+}
+
+.content-header {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.content-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.refresh-btn {
+    background: white;
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #4a5568;
+    transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+}
+
+/* Stats Grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-left: 4px solid transparent;
+}
+
+.stat-card.blue {
+    border-left-color: #4299e1;
+}
+
+.stat-card.green {
+    border-left-color: #48bb78;
+}
+
+.stat-card.orange {
+    border-left-color: #ed8936;
+}
+
+.stat-card.purple {
+    border-left-color: #9f7aea;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #718096;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+/* Pending Requests Section */
+.section-container {
+    background: white;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pending-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.pending-card {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.pending-card:hover {
+    border-color: #cbd5e0;
+    background: #f8fafc;
+}
+
+.hospital-info h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.25rem;
+}
+
+.hospital-info p {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.manager-details {
+    font-size: 0.85rem;
+    color: #a0aec0;
+    margin-top: 0.5rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.btn-approve,
+.btn-reject {
+    padding: 0.5rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-approve {
+    background: #48bb78;
+    color: white;
+}
+
+.btn-approve:hover {
+    background: #38a169;
+    transform: translateY(-1px);
+}
+
+.btn-reject {
+    background: white;
+    border: 1px solid #e53e3e;
+    color: #e53e3e;
+}
+
+.btn-reject:hover {
+    background: #fff5f5;
+}
+
+/* Map Placeholder */
+.map-placeholder {
+    background: #e2e8f0;
+    height: 400px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #718096;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+}
+
+.map-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0.1;
+    background-image: radial-gradient(#4a5568 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #a0aec0;
+}

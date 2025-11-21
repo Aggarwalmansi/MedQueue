@@ -1,33 +1,81 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const auth = require('./routes/auth');
-const hospitalRoutes = require('./routes/hospital');
-const bedRoutes = require('./routes/bed');
-const searchRoutes = require('./routes/search');
-dotenv.config();
+const http = require('http');
+const { Server } = require('socket.io');
+const authRoutes = require('./routes/auth.routes');
+const hospitalRoutes = require('./routes/hospital.routes');
+const patientRoutes = require('./routes/patient.routes');
+const authMiddleware = require('./middleware/authMiddleware');
 
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-console.log(PORT)
+// Create HTTP server
+const server = http.createServer(app);
 
-app.use(cors({origin:"*"}));
+// Initialize Socket.io
+const io = new Server(server, {
+  cors: {
+    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+  }
+});
+
+// Socket.io connection handler
+io.on('connection', (socket) => {
+  console.log('A user connected:', socket.id);
+
+  socket.on('join_hospital', (hospitalId) => {
+    const room = `hospital_${hospitalId}`;
+    socket.join(room);
+    console.log(`User ${socket.id} joined room: ${room}`);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('User disconnected:', socket.id);
+  });
+});
+
+// Middleware to make io available in routes
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+app.use(cors({
+  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  credentials: true, // Allow cookies to be sent across origins
+}));
 app.use(express.json());
 
-app.use("/api/auth", auth)
-app.use("/api/hospitals", hospitalRoutes)
-app.use("/api/beds", bedRoutes)
-app.use("/api/search", searchRoutes)
+const session = require('express-session');
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'keyboard cat',
+  resave: true,
+  saveUninitialized: true
+}));
+
+const passport = require('./middleware/passport');
+app.use(passport.initialize());
+app.use(passport.session());
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api", require('./routes/patient.routes')); // Public routes: /hospitals, /bookings
+app.use("/api/admin", require('./routes/admin.routes'));
+// Hospital routes (Auth handled internally or bypassed for test)
+app.use("/api/hospital", hospitalRoutes);
 
 app.get("/test", (req, res) => {
   res.json({ message: "Test route is working!" })
-})
+});
 
-
-app.get('/',(req,res)=>{
-    res.send('Welcome to the Hospital Management System API');
+app.get('/', (req, res) => {
+  res.send('Welcome to the Hospital Management System API');
 })
 
 app.get("/api/health", (req, res) => {
@@ -42,8 +90,7 @@ app.use((err, req, res, next) => {
   })
 })
 
-
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+server.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
 

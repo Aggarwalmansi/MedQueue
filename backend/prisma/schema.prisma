@@ -10,92 +10,98 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 1. Users: The central identity table
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  role      Role     @default(PATIENT)
+  fullName  String
+  phone     String?
+  googleId  String?  @unique
+  
+  // Relations
+  hospital  Hospital? // If user is a hospital manager
+  bookings  Booking[] // If user is a patient
+  refreshTokens RefreshToken[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// 2. Hospitals: The core resource entity
+model Hospital {
+  id            Int      @id @default(autoincrement())
+  name          String
+  address       String
+  city          String
+  latitude      Float    // Crucial for distance calc
+  longitude     Float    // Crucial for distance calc
+  phone         String
+  isVerified    Boolean  @default(false) // Admin approval flag
+  
+  // Live Inventory (The most frequently updated fields)
+  bedsGeneral   Int      @default(0)
+  bedsICU       Int      @default(0)
+  bedsOxygen    Int      @default(0)
+  doctorsActive Int      @default(0)
+  
+  // Relations
+  managerId     Int      @unique
+  manager       User     @relation(fields: [managerId], references: [id])
+  bookings      Booking[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+// 3. Bookings: The transactional link between Patient and Hospital
+model Booking {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  
+  // Patient Info
+  patientName String
+  patientPhone String?  // Added for guest bookings
+  condition   String   // e.g., "Chest Pain"
+  severity    Severity @default(MODERATE)
+  
+  // Status Flow
+  status      Status   @default(INCOMING)
+  
+  // Relations
+  userId      Int?     // Made optional for guest bookings
+  user        User?    @relation(fields: [userId], references: [id])
+  hospitalId  Int
+  hospital    Hospital @relation(fields: [hospitalId], references: [id])
+}
+
+// Enums for strict typing
 enum Role {
-  USER
-  HOSPITAL_MANAGER
+  PATIENT
+  HOSPITAL
   ADMIN
 }
 
-enum BedType {
-  GENERAL
-  ICU
-  PEDIATRIC
-  VENTILATOR
+enum Status {
+  INCOMING  // Patient is on the way
+  ADMITTED  // Patient arrived and accepted
+  DIVERTED  // Hospital sent patient elsewhere
+  CANCELLED // Patient cancelled
 }
 
-enum BedStatus {
-  AVAILABLE
-  OCCUPIED
-  MAINTENANCE
+enum Severity {
+  LOW
+  MODERATE
+  CRITICAL
 }
 
-enum BookingStatus {
-  PENDING
-  CONFIRMED
-  REJECTED
-  CANCELLED
-}
-
-model User {
-  id       String  @id @default(uuid())
-  email    String  @unique
-  password String
-  role     Role    @default(USER)
-  hospitalId String?
-  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
-  bookings   Booking[]
-  resetToken String? @unique
-  resetTokenExpiry DateTime?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}
-
-model Hospital {
-  id            String @id @default(uuid())
-  name          String
-  address       String
-  contactPhone  String?
-  latitude      Float
-  longitude     Float
-  managers      User[]
-  beds          Bed[]
-  bookings      Booking[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@index([name])
-}
-
-model Bed {
-  id         String @id @default(uuid())
-  type       BedType
-  status     BedStatus @default(AVAILABLE)
-  bedNumber  String
-  hospitalId String
-  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  bookings   Booking[]
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  @@unique([hospitalId, bedNumber])
-  @@index([hospitalId])
-  @@index([status])
-}
-
-model Booking {
-  id           String @id @default(uuid())
-  userId       String
-  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bedId        String?
-  bed          Bed? @relation(fields: [bedId], references: [id], onDelete: SetNull)
-  hospitalId   String
-  hospital     Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
-  bedType      BedType
-  status       BookingStatus @default(PENDING)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@index([userId])
-  @@index([hospitalId])
-  @@index([status])
+model RefreshToken {
+  id          Int      @id @default(autoincrement())
+  token       String   @unique
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  createdAt   DateTime @default(now())
+  revoked     Boolean  @default(false)
 }
