@@ -11,7 +11,7 @@ const authMiddleware = require('./middleware/authMiddleware');
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5001;
 
 // Create HTTP server
 const server = http.createServer(app);
