@@ -1,8 +1,9 @@
-"use client"
-import React from "react"
-import { useState } from "react"
+import React, { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
+import Button from "../components/ui/Button"
+import Input from "../components/ui/Input"
+import { User, Mail, Phone, MapPin, Lock, Building, ArrowRight, AlertCircle, Activity } from "lucide-react"
 import "../styles/Signup.css"
 
 const Signup = () => {
@@ -20,10 +21,8 @@ const Signup = () => {
     longitude: ""
   })
   const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [passwordError, setPasswordError] = useState("")
-  const { signup, error } = useAuth()
+  const [error, setError] = useState("")
+  const { signup } = useAuth()
   const navigate = useNavigate()
 
   const handleChange = (e) => {
@@ -32,25 +31,24 @@ const Signup = () => {
 
   const validatePassword = () => {
     if (formData.password.length < 8) {
-      setPasswordError("Password must be at least 8 characters")
+      setError("Password must be at least 8 characters")
       return false
     }
     if (formData.password !== formData.confirmPassword) {
-      setPasswordError("Passwords do not match")
+      setError("Passwords do not match")
       return false
     }
-    setPasswordError("")
+    setError("")
     return true
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-
-    if (!validatePassword()) {
-      return
-    }
+    if (!validatePassword()) return
 
     setLoading(true)
+    setError("")
+
     // Clean up data before sending
     const dataToSend = { ...formData }
     delete dataToSend.confirmPassword
@@ -62,251 +60,229 @@ const Signup = () => {
       delete dataToSend.longitude
     }
 
-    const result = await signup(dataToSend)
-
-    if (result.success) {
-      navigate("/dashboard")
+    try {
+      const result = await signup(dataToSend)
+      if (result.success) {
+        navigate("/dashboard")
+      } else {
+        setError(result.error || "Signup failed")
+      }
+    } catch (err) {
+      setError("An unexpected error occurred")
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
-    <div className="signup-container">
-      <div className="signup-gradient-side">
-        <div className="signup-gradient-content">
-          <div className="signup-logo">MedQueue</div>
-          <h2 className="signup-gradient-title">Start Saving Lives</h2>
-          <p className="signup-gradient-subtitle">Join thousands using MedQueue to find available hospital beds instantly during emergencies.</p>
+    <div className="signup-page">
+      {/* Left Side - Brand */}
+      <div className="signup-brand-section">
+        <div className="brand-bg-pattern"></div>
+        <div className="brand-blob blob-top"></div>
+        <div className="brand-blob blob-bottom"></div>
+
+        <div className="brand-content">
+          <div className="brand-logo-container">
+            <Activity size={40} className="text-white" />
+          </div>
+          <h1 className="brand-title">Join MedQueue</h1>
+          <p className="brand-subtitle">
+            Connect with emergency care instantly. Every second counts when saving a life.
+          </p>
 
           <div className="signup-benefits">
-            <div className="signup-benefit-item">
-              <div className="signup-benefit-icon">1</div>
-              <div>
-                <h4>For Patients</h4>
-                <p>Find nearest hospitals with available beds</p>
-              </div>
+            <div className="benefit-item">
+              <div className="benefit-icon">1</div>
+              <div className="benefit-text">Real-time bed availability</div>
             </div>
-            <div className="signup-benefit-item">
-              <div className="signup-benefit-icon">2</div>
-              <div>
-                <h4>For Managers</h4>
-                <p>Track and manage bed availability</p>
-              </div>
+            <div className="benefit-item">
+              <div className="benefit-icon">2</div>
+              <div className="benefit-text">Direct hospital coordination</div>
+            </div>
+            <div className="benefit-item">
+              <div className="benefit-icon">3</div>
+              <div className="benefit-text">Secure medical data</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="signup-form-side">
-        <div className="signup-form-wrapper">
-          <div className="signup-form-header">
-            <h1>Create Account</h1>
-            <p>Join MedQueue in 3 simple steps</p>
+      {/* Right Side - Form */}
+      <div className="signup-form-section animate-fade-in">
+        <div className="signup-form-container">
+          <div className="form-header">
+            <h2 className="form-title">Create Account</h2>
+            <p className="form-subtitle">Join us in just a few steps</p>
           </div>
 
           {error && (
-            <div className="signup-error-box">
-              <span className="signup-error-icon">⚠</span>
+            <div className="error-alert animate-fade-in">
+              <AlertCircle size={20} />
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="signup-form">
-            <div className="signup-input-group">
-              <label htmlFor="fullName" className="signup-label">Full Name</label>
-              <input
-                id="fullName"
-                type="text"
-                value={formData.fullName}
-                onChange={handleChange}
-                className="signup-input"
-                placeholder="John Doe"
-                required
-              />
+            <div className="form-group">
+              <label className="form-label">Account Type</label>
+              <div className="role-selector">
+                <button
+                  type="button"
+                  className={`role-btn ${formData.role === 'PATIENT' ? 'active' : ''}`}
+                  onClick={() => setFormData({ ...formData, role: 'PATIENT' })}
+                >
+                  Patient
+                </button>
+                <button
+                  type="button"
+                  className={`role-btn ${formData.role === 'HOSPITAL' ? 'active' : ''}`}
+                  onClick={() => setFormData({ ...formData, role: 'HOSPITAL' })}
+                >
+                  Hospital
+                </button>
+                <button
+                  type="button"
+                  className={`role-btn ${formData.role === 'ADMIN' ? 'active' : ''}`}
+                  onClick={() => setFormData({ ...formData, role: 'ADMIN' })}
+                >
+                  Admin
+                </button>
+              </div>
             </div>
 
-            <div className="signup-input-group">
-              <label htmlFor="email" className="signup-label">Email Address</label>
-              <input
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Full Name</label>
+                <Input
+                  id="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
+                  placeholder="John Doe"
+                  required
+                  icon={User}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Phone</label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  placeholder="1234567890"
+                  icon={Phone}
+                />
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Email Address</label>
+              <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={handleChange}
-                className="signup-input"
                 placeholder="name@example.com"
                 required
+                icon={Mail}
               />
-            </div>
-
-            <div className="signup-input-group">
-              <label htmlFor="phone" className="signup-label">Phone Number</label>
-              <input
-                id="phone"
-                type="tel"
-                value={formData.phone}
-                onChange={handleChange}
-                className="signup-input"
-                placeholder="1234567890"
-              />
-            </div>
-
-            <div className="signup-input-group">
-              <label htmlFor="role" className="signup-label">Account Type</label>
-              <select
-                id="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="signup-input signup-select"
-              >
-                <option value="PATIENT">Patient - Find hospital beds</option>
-                <option value="HOSPITAL">Hospital Manager - Manage beds</option>
-                <option value="ADMIN">Admin - System oversight</option>
-              </select>
             </div>
 
             {formData.role === 'HOSPITAL' && (
-              <>
-                <div className="signup-input-group">
-                  <label htmlFor="hospitalName" className="signup-label">Hospital Name</label>
-                  <input
+              <div className="hospital-fields animate-fade-in">
+                <div className="form-group">
+                  <label className="form-label">Hospital Name</label>
+                  <Input
                     id="hospitalName"
-                    type="text"
                     value={formData.hospitalName}
                     onChange={handleChange}
-                    className="signup-input"
                     placeholder="General Hospital"
                     required
+                    icon={Building}
                   />
                 </div>
-                <div className="signup-input-group">
-                  <label htmlFor="address" className="signup-label">Address</label>
-                  <input
+                <div className="form-group">
+                  <label className="form-label">Address</label>
+                  <Input
                     id="address"
-                    type="text"
                     value={formData.address}
                     onChange={handleChange}
-                    className="signup-input"
-                    placeholder="123 Main St"
+                    placeholder="123 Medical Dr"
+                    icon={MapPin}
                   />
                 </div>
-                <div className="signup-input-group">
-                  <label htmlFor="city" className="signup-label">City</label>
-                  <input
-                    id="city"
-                    type="text"
-                    value={formData.city}
-                    onChange={handleChange}
-                    className="signup-input"
-                    placeholder="New York"
-                  />
-                </div>
-                <div className="signup-row">
-                  <div className="signup-input-group">
-                    <label htmlFor="latitude" className="signup-label">Latitude</label>
-                    <input
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Latitude</label>
+                    <Input
                       id="latitude"
                       type="number"
                       step="any"
                       value={formData.latitude}
                       onChange={handleChange}
-                      className="signup-input"
                       placeholder="40.7128"
                       required
                     />
                   </div>
-                  <div className="signup-input-group">
-                    <label htmlFor="longitude" className="signup-label">Longitude</label>
-                    <input
+                  <div className="form-group">
+                    <label className="form-label">Longitude</label>
+                    <Input
                       id="longitude"
                       type="number"
                       step="any"
                       value={formData.longitude}
                       onChange={handleChange}
-                      className="signup-input"
                       placeholder="-74.0060"
                       required
                     />
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
-            <div className="signup-input-group">
-              <label htmlFor="password" className="signup-label">Password</label>
-              <div className="signup-password-wrapper">
-                <input
+            <div className="form-row">
+              <div className="form-group">
+                <label className="form-label">Password</label>
+                <Input
                   id="password"
-                  type={showPassword ? "text" : "password"}
+                  type="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="signup-input"
                   placeholder="••••••••"
                   required
+                  icon={Lock}
                 />
-                <button
-                  type="button"
-                  className="signup-password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </button>
               </div>
-              <p className="signup-hint">At least 8 characters</p>
-            </div>
-
-            <div className="signup-input-group">
-              <label htmlFor="confirmPassword" className="signup-label">Confirm Password</label>
-              <div className="signup-password-wrapper">
-                <input
+              <div className="form-group">
+                <label className="form-label">Confirm</label>
+                <Input
                   id="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
+                  type="password"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="signup-input"
                   placeholder="••••••••"
                   required
+                  icon={Lock}
                 />
-                <button
-                  type="button"
-                  className="signup-password-toggle"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? "Hide" : "Show"}
-                </button>
               </div>
             </div>
 
-            {passwordError && (
-              <div className="signup-password-error">
-                {passwordError}
-              </div>
-            )}
-
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="signup-button"
+              className="w-full shadow-lg"
+              isLoading={loading}
+              icon={ArrowRight}
             >
-              {loading ? (
-                <>
-                  <span className="signup-spinner"></span>
-                  Creating account...
-                </>
-              ) : (
-                "Create Account"
-              )}
-            </button>
+              Create Account
+            </Button>
           </form>
 
-          <p className="signup-signin-text">
+          <p className="signup-prompt">
             Already have an account?{" "}
-            <Link to="/login" className="signup-signin-link">
+            <Link to="/login" className="signup-link">
               Sign in
             </Link>
-          </p>
-
-          <p className="signup-footer-text">
-            By creating an account, you agree to our Terms of Service and Privacy Policy
           </p>
         </div>
       </div>

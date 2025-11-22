@@ -1,0 +1,103 @@
+/* BookingSuccess.css */
+.success-page-container {
+    min-height: 100vh;
+    background-color: var(--stone-50);
+    padding: 3rem 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.success-content-wrapper {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.success-header {
+    text-align: center;
+}
+
+.success-icon-wrapper {
+    width: 64px;
+    height: 64px;
+    background-color: var(--primary-100);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    color: var(--primary-600);
+}
+
+.success-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--stone-900);
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.025em;
+}
+
+.success-subtitle {
+    color: var(--stone-600);
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.return-link-container {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.return-link {
+    color: var(--stone-500);
+    font-size: 0.875rem;
+    text-decoration: underline;
+    cursor: pointer;
+    background: none;
+    border: none;
+    transition: color 0.2s;
+}
+
+.return-link:hover {
+    color: var(--stone-900);
+}
+
+/* Error State */
+.error-card {
+    background: white;
+    padding: 2rem;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+.error-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    background-color: var(--error-100);
+    color: var(--error-600);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.error-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--stone-900);
+    margin-bottom: 0.5rem;
+}
+
+.error-desc {
+    color: var(--stone-500);
+    font-size: 0.875rem;
+    margin-bottom: 1.5rem;
+}

@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import HospitalCard from '../components/Patient/HospitalCard';
 import BookingModal from '../components/Patient/BookingModal';
-import TicketView from '../components/Patient/TicketView';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import Badge from '../components/ui/Badge';
+import { MapPin, Navigation, Activity, Search, AlertCircle } from 'lucide-react';
+import '../styles/PatientDashboard.css';
 
 const PatientDashboard = () => {
+    const navigate = useNavigate();
     const [location, setLocation] = useState(null);
     const [hospitals, setHospitals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedHospital, setSelectedHospital] = useState(null); // For modal
-    const [bookingSuccess, setBookingSuccess] = useState(null); // For ticket view
+
+    // Modal State
+    const [selectedHospital, setSelectedHospital] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         // 1. Get Location immediately
@@ -49,131 +57,112 @@ const PatientDashboard = () => {
 
     const handleNotifyClick = (hospital) => {
         setSelectedHospital(hospital);
+        setIsModalOpen(true);
     };
 
-    const handleBookingSubmit = async (formData) => {
-        try {
-            const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-            const response = await fetch(`${apiUrl}/api/bookings`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    hospitalId: selectedHospital.id,
-                    ...formData
-                })
-            });
-
-            if (!response.ok) throw new Error('Booking failed');
-            const data = await response.json();
-
-            // Show success ticket
-            setBookingSuccess({ booking: data.booking, hospital: selectedHospital });
-            setSelectedHospital(null); // Close modal
-        } catch (err) {
-            console.error(err);
-            alert("Failed to send alert. Please try again or call emergency services.");
-        }
-    };
-
-    // Render Ticket View if booking successful
-    if (bookingSuccess) {
-        return <TicketView booking={bookingSuccess.booking} hospital={bookingSuccess.hospital} />;
-    }
-
-    const styles = {
-        container: {
-            padding: '20px',
-            maxWidth: '600px',
-            margin: '0 auto',
-            minHeight: '100vh',
-            backgroundColor: '#f5f5f5',
-            fontFamily: '"Inter", sans-serif'
-        },
-        header: {
-            marginBottom: '24px',
-            textAlign: 'center'
-        },
-        title: {
-            fontSize: '2rem',
-            fontWeight: '800',
-            color: '#1f1f1f',
-            marginBottom: '8px'
-        },
-        subtitle: {
-            color: '#595959',
-            fontSize: '1rem'
-        },
-        loading: {
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '50vh',
-            flexDirection: 'column',
-            gap: '16px'
-        },
-        spinner: {
-            width: '40px',
-            height: '40px',
-            border: '4px solid #f3f3f3',
-            borderTop: '4px solid #ff4d4f',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite'
-        },
-        error: {
-            color: '#ff4d4f',
-            textAlign: 'center',
-            marginTop: '40px',
-            padding: '20px'
-        }
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedHospital(null);
     };
 
     return (
-        <div style={styles.container}>
-            <style>
-                {`
-                    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-                    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-                `}
-            </style>
+        <div className="patient-dashboard">
+            {/* Header / Hero */}
+            <div className="dashboard-header">
+                <div className="container-max header-content">
+                    <div className="header-brand">
+                        <div className="brand-icon">
+                            <Activity size={24} />
+                        </div>
+                        <div>
+                            <h1 className="brand-name">Emergency Help</h1>
+                            <p className="brand-status">Finding nearest care...</p>
+                        </div>
+                    </div>
 
-            <div style={styles.header}>
-                <h1 style={styles.title}>Emergency Help</h1>
-                <p style={styles.subtitle}>Finding the best care near you...</p>
-            </div>
-
-            {loading && (
-                <div style={styles.loading}>
-                    <div style={styles.spinner}></div>
-                    <p>Locating hospitals...</p>
-                </div>
-            )}
-
-            {error && <div style={styles.error}><h3>⚠️ {error}</h3></div>}
-
-            {!loading && !error && (
-                <div>
-                    {hospitals.map(hospital => (
-                        <HospitalCard
-                            key={hospital.id}
-                            hospital={hospital}
-                            onNotify={handleNotifyClick}
-                        />
-                    ))}
-                    {hospitals.length === 0 && (
-                        <p style={{ textAlign: 'center', marginTop: '40px' }}>No hospitals found nearby.</p>
+                    {location ? (
+                        <Badge variant="success" className="location-badge">
+                            <Navigation size={12} /> GPS Active
+                        </Badge>
+                    ) : (
+                        <Badge variant="warning" className="location-badge">
+                            <Search size={12} /> Locating...
+                        </Badge>
                     )}
                 </div>
-            )}
+            </div>
 
-            {selectedHospital && (
-                <BookingModal
-                    hospital={selectedHospital}
-                    onClose={() => setSelectedHospital(null)}
-                    onSubmit={handleBookingSubmit}
-                />
-            )}
+            <div className="container-max dashboard-content">
+                {/* Loading State */}
+                {loading && (
+                    <div className="loading-container animate-fade-in">
+                        <div className="loading-spinner"></div>
+                        <h3 className="loading-title">Scanning Nearby Hospitals...</h3>
+                        <p className="loading-desc">Please wait while we check bed availability.</p>
+                    </div>
+                )}
+
+                {/* Content */}
+                {!loading && (
+                    <>
+                        {/* Show Empty State if Error OR No Hospitals */}
+                        {(error || hospitals.length === 0) ? (
+                            <div className="empty-state-container animate-fade-in">
+                                <Card className="empty-state-card">
+                                    <div className="empty-icon-wrapper">
+                                        {error ? <AlertCircle size={32} /> : <Search size={32} />}
+                                    </div>
+                                    <h3 className="empty-title">
+                                        {error ? "Unable to Load Hospitals" : "No Hospitals Found Nearby"}
+                                    </h3>
+                                    <p className="empty-desc">
+                                        {error
+                                            ? "We encountered an issue while fetching hospital data. Please check your connection."
+                                            : "We couldn't find any partner hospitals in your current location. Try increasing your search radius."}
+                                    </p>
+                                    <Button
+                                        variant="primary"
+                                        onClick={() => window.location.reload()}
+                                        className="empty-action-btn"
+                                    >
+                                        {error ? "Retry Connection" : "Refresh Search"}
+                                    </Button>
+                                </Card>
+                            </div>
+                        ) : (
+                            <div className="hospital-list animate-slide-up">
+                                <div className="list-header">
+                                    <div>
+                                        <h2 className="list-title">Nearby Hospitals</h2>
+                                        <p className="list-subtitle">Sorted by distance and availability</p>
+                                    </div>
+                                    <span className="count-badge">
+                                        {hospitals.length} Found
+                                    </span>
+                                </div>
+
+                                <div className="hospitals-grid">
+                                    {hospitals.map(hospital => (
+                                        <HospitalCard
+                                            key={hospital.id}
+                                            hospital={hospital}
+                                            onNotify={handleNotifyClick}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+
+            {/* Booking Modal */}
+            <BookingModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                hospital={selectedHospital}
+            />
+
         </div>
     );
 };

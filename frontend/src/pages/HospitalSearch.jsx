@@ -1,7 +1,10 @@
 "use client"
-import React from "react"
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { io } from 'socket.io-client';
+import HospitalCard from "../components/Patient/HospitalCard";
+import BookingModal from "../components/Patient/BookingModal";
+import TicketView from "../components/Patient/TicketView";
+import { Search, AlertCircle } from "lucide-react";
 import "../styles/HospitalSearch.css"
 
 export default function HospitalSearch() {
@@ -14,6 +17,10 @@ export default function HospitalSearch() {
   const [error, setError] = useState(null)
   const [searched, setSearched] = useState(false)
   const [geoError, setGeoError] = useState(null)
+
+  // Booking State
+  const [selectedHospital, setSelectedHospital] = useState(null);
+  const [bookingSuccess, setBookingSuccess] = useState(null);
 
   // Auto-fetch user location on mount
   useEffect(() => {
@@ -38,23 +45,22 @@ export default function HospitalSearch() {
     socket.on('hospital_updated_public', (updatedHospital) => {
       setHospitals(prevHospitals => prevHospitals.map(h => {
         if (h.id === updatedHospital.id) {
-          // Recalculate total available beds based on the update
-          // Note: The backend update event returns the raw hospital object (bedsGeneral, bedsICU, etc.)
-          // But the search API returns a processed object (totalAvailableBeds, availableBedsByType).
-          // We need to map the raw update to the search result format.
-
-          const totalAvailableBeds = updatedHospital.bedsGeneral + updatedHospital.bedsICU + updatedHospital.bedsOxygen; // Assuming these are the types
+          const totalAvailableBeds = updatedHospital.bedsGeneral + updatedHospital.bedsICU + updatedHospital.bedsOxygen;
 
           return {
             ...h,
-            ...updatedHospital, // Update raw fields
-            totalAvailableBeds, // Update calculated field
+            ...updatedHospital,
+            totalAvailableBeds,
             availableBedsByType: {
               ...h.availableBedsByType,
               GENERAL: updatedHospital.bedsGeneral,
               ICU: updatedHospital.bedsICU,
-              VENTILATOR: updatedHospital.bedsOxygen // Mapping Oxygen to Ventilator for consistency if that's the convention
-            }
+              VENTILATOR: updatedHospital.bedsOxygen
+            },
+            // Ensure these fields exist for the Card component
+            bedsGeneral: updatedHospital.bedsGeneral,
+            bedsICU: updatedHospital.bedsICU,
+            bedsOxygen: updatedHospital.bedsOxygen
           };
         }
         return h;
@@ -77,19 +83,9 @@ export default function HospitalSearch() {
       setError(null)
       const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
 
-      // Note: The backend route in previous steps was /api/patient/hospitals (from patient.routes.js)
-      // But this file was calling /api/search/hospitals. 
-      // I should check if /api/search/hospitals exists or if I should use /api/patient/hospitals.
-      // Based on patient.routes.js, the route is /api/hospitals (mounted at /api in index.js? No, mounted at /api via patient.routes.js)
-      // Wait, index.js says: app.use("/api", require('./routes/patient.routes'));
-      // And patient.routes.js has router.get('/hospitals', ...)
-      // So the correct URL is /api/hospitals.
-
       const query = new URLSearchParams()
-      query.append("lat", latitude) // Changed from latitude to lat to match backend
-      query.append("lng", longitude) // Changed from longitude to lng to match backend
-      // query.append("radius", radius) // Backend doesn't seem to use radius yet, but we can leave it or remove it.
-      // query.append("bedType", bedType) // Backend doesn't filter by bedType yet.
+      query.append("lat", latitude)
+      query.append("lng", longitude)
 
       const response = await fetch(`${apiUrl}/api/hospitals?${query.toString()}`)
 
@@ -98,10 +94,6 @@ export default function HospitalSearch() {
       }
 
       const data = await response.json()
-      // Backend returns array directly, not { data: [] }
-      // And backend returns fields like bedsGeneral, bedsICU, etc.
-      // We need to map this to the format expected by the UI if it differs.
-      // UI expects: totalAvailableBeds, availableBedsByType
 
       const mappedData = data.map(h => ({
         ...h,
@@ -110,7 +102,11 @@ export default function HospitalSearch() {
           GENERAL: h.bedsGeneral,
           ICU: h.bedsICU,
           VENTILATOR: h.bedsOxygen
-        }
+        },
+        // Ensure these fields exist for the Card component
+        bedsGeneral: h.bedsGeneral,
+        bedsICU: h.bedsICU,
+        bedsOxygen: h.bedsOxygen
       }));
 
       setHospitals(mappedData)
@@ -121,6 +117,41 @@ export default function HospitalSearch() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleNotifyClick = (hospital) => {
+    setSelectedHospital(hospital);
+  };
+
+  const handleBookingSubmit = async (formData) => {
+    try {
+      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
+      const response = await fetch(`${apiUrl}/api/bookings`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          hospitalId: selectedHospital.id,
+          ...formData
+        })
+      });
+
+      if (!response.ok) throw new Error('Booking failed');
+      const data = await response.json();
+
+      // Show success ticket
+      setBookingSuccess({ booking: data.booking, hospital: selectedHospital });
+      setSelectedHospital(null); // Close modal
+    } catch (err) {
+      console.error(err);
+      alert("Failed to send alert. Please try again or call emergency services.");
+    }
+  };
+
+  // Render Ticket View if booking successful
+  if (bookingSuccess) {
+    return <TicketView booking={bookingSuccess.booking} hospital={bookingSuccess.hospital} />;
   }
 
   return (
@@ -200,39 +231,23 @@ export default function HospitalSearch() {
           ) : (
             <div className="hospitals-grid">
               {hospitals.map((hospital) => (
-                <div key={hospital.id} className="hospital-card">
-                  <div className="hospital-header">
-                    <h3 className="hospital-name">{hospital.name}</h3>
-                    <span className="hospital-distance">{hospital.distance} km</span>
-                  </div>
-
-                  <p className="hospital-address">{hospital.address}</p>
-
-                  <div className="beds-info">
-                    <div className="beds-count">
-                      <span className="beds-count-label">Available Beds</span>
-                      <span className="beds-count-value">{hospital.totalAvailableBeds}</span>
-                    </div>
-
-                    {Object.keys(hospital.availableBedsByType).length > 0 && (
-                      <div className="beds-by-type">
-                        {Object.entries(hospital.availableBedsByType).map(([type, count]) => (
-                          <span key={type} className="bed-type-badge">
-                            {type}: {count}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {hospital.contactPhone && <p className="hospital-phone">📞 {hospital.contactPhone}</p>}
-
-                  <button className="book-button">Book a Bed</button>
-                </div>
+                <HospitalCard
+                  key={hospital.id}
+                  hospital={hospital}
+                  onNotify={handleNotifyClick}
+                />
               ))}
             </div>
           )}
         </div>
+      )}
+
+      {selectedHospital && (
+        <BookingModal
+          hospital={selectedHospital}
+          onClose={() => setSelectedHospital(null)}
+          onSubmit={handleBookingSubmit}
+        />
       )}
     </div>
   )

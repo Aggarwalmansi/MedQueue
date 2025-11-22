@@ -1,66 +1,47 @@
-import { Link } from "react-router-dom"
-import "../styles/Footer.css"
-import React from "react"
-export default function Footer() {
-  const currentYear = new Date().getFullYear()
+import React from 'react';
+import { Activity, Phone } from 'lucide-react';
+import '../styles/Footer.css';
 
+const Footer = () => {
   return (
     <footer className="footer">
-      <div className="footer-content">
-        <div className="footer-section">
-          <h4>MedQueue</h4>
-          <p>Real-time hospital bed availability system saving lives every day.</p>
+      <div className="container-max footer-grid">
+        <div className="footer-brand">
+          <div className="logo-section white-text">
+            <Activity size={24} />
+            <span className="logo-text">MedQueue</span>
+          </div>
+          <p className="footer-desc">Connecting patients with care when it matters most.</p>
         </div>
-
-        <div className="footer-section">
-          <h5>Product</h5>
-          <ul>
-            <li>
-              <Link to="#features">Features</Link>
-            </li>
-            <li>
-              <Link to="#pricing">Pricing</Link>
-            </li>
-            <li>
-              <Link to="#security">Security</Link>
-            </li>
+        <div>
+          <h4 className="footer-heading">Platform</h4>
+          <ul className="footer-links">
+            <li><a href="#">Find Hospitals</a></li>
+            <li><a href="#">Book Appointment</a></li>
+            <li><a href="#">For Providers</a></li>
           </ul>
         </div>
-
-        <div className="footer-section">
-          <h5>Company</h5>
-          <ul>
-            <li>
-              <Link to="#about">About</Link>
-            </li>
-            <li>
-              <Link to="#blog">Blog</Link>
-            </li>
-            <li>
-              <Link to="#careers">Careers</Link>
-            </li>
+        <div>
+          <h4 className="footer-heading">Company</h4>
+          <ul className="footer-links">
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Contact</a></li>
           </ul>
         </div>
-
-        <div className="footer-section">
-          <h5>Legal</h5>
-          <ul>
-            <li>
-              <Link to="#privacy">Privacy Policy</Link>
-            </li>
-            <li>
-              <Link to="#terms">Terms of Service</Link>
-            </li>
-            <li>
-              <Link to="#contact">Contact</Link>
-            </li>
-          </ul>
+        <div>
+          <h4 className="footer-heading">Emergency</h4>
+          <div className="emergency-contact">
+            <Phone size={20} /> 108
+          </div>
+          <p className="emergency-note">For immediate life-threatening emergencies, always call emergency services.</p>
         </div>
       </div>
-
-      <div className="footer-bottom">
-        <p>&copy; {currentYear} MedQueue. All rights reserved. Built to save lives.</p>
+      <div className="container-max footer-bottom">
+        © 2024 MedQueue Inc. All rights reserved.
       </div>
     </footer>
-  )
-}
+  );
+};
+
+export default Footer;

@@ -1,0 +1,176 @@
+/* PatientDashboard.css */
+.patient-dashboard {
+    min-height: 100vh;
+    background-color: var(--stone-50);
+    padding-bottom: 4rem;
+}
+
+.dashboard-header {
+    background-color: white;
+    border-bottom: 1px solid var(--stone-200);
+    padding: 1.5rem 0;
+    margin-bottom: 2rem;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.brand-icon {
+    width: 3rem;
+    height: 3rem;
+    background-color: var(--primary-600);
+    color: white;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-name {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--stone-900);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.brand-status {
+    font-size: 0.875rem;
+    color: var(--stone-500);
+    margin: 0;
+}
+
+.location-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Loading State */
+.loading-container {
+    text-align: center;
+    padding: 4rem 0;
+}
+
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 3px solid var(--stone-200);
+    border-top-color: var(--primary-600);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 1.5rem;
+}
+
+.loading-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--stone-900);
+    margin-bottom: 0.5rem;
+}
+
+.loading-desc {
+    color: var(--stone-500);
+}
+
+/* Empty State & Error */
+.empty-state-container {
+    display: flex;
+    justify-content: center;
+    padding: 2rem 0;
+}
+
+.empty-state-card {
+    text-align: center;
+    padding: 3rem !important;
+    max-width: 480px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.empty-icon-wrapper {
+    width: 4rem;
+    height: 4rem;
+    background-color: var(--stone-100);
+    color: var(--stone-500);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.empty-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--stone-900);
+    margin-bottom: 0.75rem;
+}
+
+.empty-desc {
+    color: var(--stone-600);
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.empty-action-btn {
+    min-width: 200px;
+}
+
+/* List Header */
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 2rem;
+}
+
+.list-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--stone-900);
+    margin-bottom: 0.25rem;
+}
+
+.list-subtitle {
+    color: var(--stone-500);
+    font-size: 0.875rem;
+}
+
+.count-badge {
+    background-color: var(--stone-100);
+    color: var(--stone-600);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.hospitals-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .hospitals-grid {
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

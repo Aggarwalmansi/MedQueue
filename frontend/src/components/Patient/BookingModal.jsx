@@ -1,151 +1,161 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { X, Loader2, Send } from 'lucide-react';
+import '../../styles/BookingModal.css';
 
-const BookingModal = ({ hospital, onClose, onSubmit }) => {
+const BookingModal = ({ isOpen, onClose, hospital }) => {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         patientName: '',
         patientPhone: '',
-        condition: 'Cardiac' // Default
+        condition: '',
+        severity: 'MODERATE'
     });
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    if (!isOpen || !hospital) return null;
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        await onSubmit(formData);
-        setLoading(false);
-    };
+    const handleSubmit = async () => {
+        if (!formData.patientName || !formData.patientPhone || !formData.condition) {
+            setError("Please fill in all required fields.");
+            return;
+        }
 
-    const styles = {
-        overlay: {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'flex-end', // Bottom sheet style for mobile feel
-            zIndex: 1000
-        },
-        modal: {
-            backgroundColor: '#fff',
-            width: '100%',
-            maxWidth: '500px',
-            borderTopLeftRadius: '24px',
-            borderTopRightRadius: '24px',
-            padding: '24px',
-            animation: 'slideUp 0.3s ease-out'
-        },
-        title: {
-            fontSize: '1.5rem',
-            fontWeight: '700',
-            marginBottom: '20px',
-            color: '#1f1f1f'
-        },
-        inputGroup: {
-            marginBottom: '16px'
-        },
-        label: {
-            display: 'block',
-            marginBottom: '8px',
-            fontWeight: '500',
-            color: '#595959'
-        },
-        input: {
-            width: '100%',
-            padding: '12px',
-            borderRadius: '12px',
-            border: '1px solid #d9d9d9',
-            fontSize: '1rem',
-            outline: 'none'
-        },
-        select: {
-            width: '100%',
-            padding: '12px',
-            borderRadius: '12px',
-            border: '1px solid #d9d9d9',
-            fontSize: '1rem',
-            backgroundColor: '#fff'
-        },
-        submitBtn: {
-            width: '100%',
-            padding: '16px',
-            backgroundColor: '#ff4d4f',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '12px',
-            fontSize: '1.1rem',
-            fontWeight: '700',
-            cursor: 'pointer',
-            marginTop: '10px'
-        },
-        cancelBtn: {
-            width: '100%',
-            padding: '12px',
-            backgroundColor: 'transparent',
-            color: '#8c8c8c',
-            border: 'none',
-            fontSize: '1rem',
-            cursor: 'pointer',
-            marginTop: '8px'
+        setLoading(true);
+        setError(null);
+
+        try {
+            const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
+            const response = await fetch(`${apiUrl}/api/bookings`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    hospitalId: hospital.id,
+                    ...formData
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Booking failed. Please try again.');
+            }
+
+            const data = await response.json();
+
+            // Close modal and navigate to success page
+            onClose();
+            navigate('/booking/success', { state: { booking: data.booking, hospital: hospital } });
+
+        } catch (err) {
+            console.error(err);
+            setError(err.message || "An error occurred while booking.");
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <div style={styles.overlay}>
-            <div style={styles.modal}>
-                <h2 style={styles.title}>Notify {hospital.name}</h2>
-                <form onSubmit={handleSubmit}>
-                    <div style={styles.inputGroup}>
-                        <label style={styles.label}>Patient Name</label>
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-container" onClick={e => e.stopPropagation()}>
+                <button className="close-btn" onClick={onClose}>
+                    <X size={20} />
+                </button>
+
+                <div className="modal-header">
+                    <h2>Notify Hospital</h2>
+                    <p className="modal-subtitle">
+                        Notifying <strong>{hospital.name}</strong> of your arrival.
+                    </p>
+                </div>
+
+                {error && (
+                    <div className="error-message">
+                        {error}
+                    </div>
+                )}
+
+                <div className="modal-body">
+                    <div className="form-group">
+                        <label>Patient Name</label>
                         <input
-                            style={styles.input}
+                            type="text"
                             name="patientName"
+                            className="form-input"
+                            placeholder="Full name"
                             value={formData.patientName}
                             onChange={handleChange}
-                            required
-                            placeholder="e.g. John Doe"
                         />
                     </div>
-                    <div style={styles.inputGroup}>
-                        <label style={styles.label}>Phone Number</label>
+
+                    <div className="form-group">
+                        <label>Phone Number</label>
                         <input
-                            style={styles.input}
+                            type="tel"
                             name="patientPhone"
+                            className="form-input"
+                            placeholder="+1 (555) 000-0000"
                             value={formData.patientPhone}
                             onChange={handleChange}
-                            required
-                            placeholder="e.g. 9876543210"
-                            type="tel"
                         />
                     </div>
-                    <div style={styles.inputGroup}>
-                        <label style={styles.label}>Condition</label>
+
+                    <div className="form-group">
+                        <label>Condition</label>
                         <select
-                            style={styles.select}
                             name="condition"
+                            className="form-select"
                             value={formData.condition}
                             onChange={handleChange}
                         >
-                            <option value="Cardiac">Cardiac (Chest Pain)</option>
+                            <option value="">Select condition</option>
                             <option value="Accident">Accident / Trauma</option>
+                            <option value="Cardiac">Chest Pain (Cardiac)</option>
                             <option value="Breathlessness">Breathlessness</option>
+                            <option value="Fever">High Fever</option>
                             <option value="Pregnancy">Pregnancy</option>
                             <option value="Other">Other</option>
                         </select>
                     </div>
-                    <button style={styles.submitBtn} type="submit" disabled={loading}>
-                        {loading ? 'Sending...' : '🚨 Send Emergency Alert'}
-                    </button>
-                    <button style={styles.cancelBtn} type="button" onClick={onClose}>
+
+                    <div className="form-group">
+                        <label>Severity</label>
+                        <select
+                            name="severity"
+                            className="form-select"
+                            value={formData.severity}
+                            onChange={handleChange}
+                        >
+                            <option value="Mild">LOW</option>
+                            <option value="Moderate">MODERATE</option>
+                            <option value="Critical">CRITICAL</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div className="modal-actions">
+                    <button className="btn btn-cancel" onClick={onClose} disabled={loading}>
                         Cancel
                     </button>
-                </form>
+                    <button className="btn btn-confirm" onClick={handleSubmit} disabled={loading}>
+                        {loading ? (
+                            <>
+                                <Loader2 size={18} className="animate-spin" />
+                                Processing...
+                            </>
+                        ) : (
+                            <>
+                                <Send size={18} />
+                                Confirm Booking
+                            </>
+                        )}
+                    </button>
+                </div>
             </div>
         </div>
     );

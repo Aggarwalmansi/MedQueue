@@ -143,4 +143,34 @@ router.post('/bookings', async (req, res) => {
     }
 });
 
+const authMiddleware = require('../middleware/authMiddleware');
+
+// GET /api/patient/my-bookings
+router.get('/my-bookings', authMiddleware, async (req, res) => {
+    try {
+        const userId = req.user.id;
+
+        const bookings = await prisma.booking.findMany({
+            where: { userId: userId },
+            include: {
+                hospital: {
+                    select: {
+                        name: true,
+                        address: true,
+                        phone: true,
+                        latitude: true,
+                        longitude: true
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        res.json(bookings);
+    } catch (error) {
+        console.error('Error fetching user bookings:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 module.exports = router;

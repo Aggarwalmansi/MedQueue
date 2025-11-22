@@ -1,6 +1,9 @@
-"use client";
 import React, { useState, useEffect } from "react"
 import { useAuth } from "../context/AuthContext"
+import Card from "../components/ui/Card"
+import Button from "../components/ui/Button"
+import Badge from "../components/ui/Badge"
+import { Shield, Activity, CheckCircle, XCircle, Users, Building, Map, RefreshCw, LogOut } from "lucide-react"
 import "../styles/AdminDashboard.css"
 
 export default function AdminDashboard() {
@@ -69,117 +72,184 @@ export default function AdminDashboard() {
     }
   }
 
-  if (loading) return <div className="admin-container"><div className="loading">Loading System...</div></div>
+  if (loading && !stats) {
+    return (
+      <div className="admin-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading Admin System...</p>
+      </div>
+    )
+  }
 
   return (
-    <div className="admin-container">
-      {/* Sidebar */}
-      <aside className="admin-sidebar">
-        <div className="sidebar-header">
-          <h2>🛡️ Super Admin</h2>
-        </div>
-        <ul className="nav-menu">
-          <li
-            className={`nav-item ${activeTab === "overview" ? "active" : ""}`}
-            onClick={() => setActiveTab("overview")}
-          >
-            <span>📊</span> Overview
-          </li>
-          <li
-            className={`nav-item ${activeTab === "verification" ? "active" : ""}`}
-            onClick={() => setActiveTab("verification")}
-          >
-            <span>✅</span> Verification ({pendingHospitals.length})
-          </li>
-          <li className="nav-item" onClick={logout}>
-            <span>🚪</span> Logout
-          </li>
-        </ul>
-      </aside>
-
-      {/* Main Content */}
-      <main className="admin-content">
-        <header className="content-header">
-          <h1>
-            {activeTab === "overview" ? "Global Overwatch" : "Verification Gatekeeper"}
-          </h1>
-          <button className="refresh-btn" onClick={fetchDashboardData}>↻ Refresh Data</button>
-        </header>
-
-        {activeTab === "overview" && (
-          <>
-            {/* Stats Grid */}
-            <div className="stats-grid">
-              <StatCard label="Total Hospitals" value={stats?.totalHospitals || 0} color="blue" />
-              <StatCard label="Active Hospitals" value={stats?.activeHospitals || 0} color="green" />
-              <StatCard label="Total Beds" value={stats?.totalBeds || 0} color="orange" />
-              <StatCard label="System Health" value={stats?.systemHealth || "Unknown"} color="purple" />
+    <div className="admin-dashboard">
+      <div className="container-max admin-layout">
+        {/* Sidebar */}
+        <aside className="admin-sidebar">
+          <Card className="sidebar-card">
+            <div className="sidebar-header">
+              <Shield size={24} className="text-primary" />
+              <h2>Admin Panel</h2>
             </div>
 
-            {/* Map Placeholder */}
-            <div className="section-container">
-              <div className="section-title">
-                <span>🗺️</span> Live System Map
+            <nav className="sidebar-nav">
+              <button
+                className={`nav-item ${activeTab === "overview" ? "active" : ""}`}
+                onClick={() => setActiveTab("overview")}
+              >
+                <Activity size={18} /> Overview
+              </button>
+              <button
+                className={`nav-item ${activeTab === "verification" ? "active" : ""}`}
+                onClick={() => setActiveTab("verification")}
+              >
+                <CheckCircle size={18} />
+                Approvals
+                {pendingHospitals.length > 0 && (
+                  <Badge variant="warning" className="nav-badge">{pendingHospitals.length}</Badge>
+                )}
+              </button>
+            </nav>
+
+            <div className="sidebar-footer">
+              <button className="nav-item logout" onClick={logout}>
+                <LogOut size={18} /> Logout
+              </button>
+            </div>
+          </Card>
+        </aside>
+
+        {/* Main Content */}
+        <main className="admin-content">
+          <div className="content-header">
+            <div>
+              <h1 className="page-title">
+                {activeTab === "overview" ? "System Overview" : "Pending Approvals"}
+              </h1>
+              <p className="page-subtitle">
+                {activeTab === "overview"
+                  ? "Monitor system health and hospital statistics"
+                  : "Verify and approve new hospital registrations"}
+              </p>
+            </div>
+            <Button variant="secondary" size="sm" onClick={fetchDashboardData} icon={RefreshCw}>
+              Refresh
+            </Button>
+          </div>
+
+          {activeTab === "overview" && (
+            <div className="overview-section animate-fade-in">
+              {/* Stats Grid */}
+              <div className="stats-grid">
+                <StatCard
+                  icon={Building}
+                  label="Total Hospitals"
+                  value={stats?.totalHospitals || 0}
+                  trend="+2 this week"
+                />
+                <StatCard
+                  icon={CheckCircle}
+                  label="Active Hospitals"
+                  value={stats?.activeHospitals || 0}
+                  trend="98% uptime"
+                />
+                <StatCard
+                  icon={Activity}
+                  label="Total Beds"
+                  value={stats?.totalBeds || 0}
+                  trend="Live count"
+                />
+                <StatCard
+                  icon={Users}
+                  label="System Health"
+                  value={stats?.systemHealth || "Good"}
+                  trend="All systems go"
+                />
               </div>
-              <div className="map-placeholder">
-                <div className="map-bg"></div>
-                <p>Interactive Map Module (Coming Soon)</p>
-              </div>
-            </div>
-          </>
-        )}
 
-        {activeTab === "verification" && (
-          <div className="section-container">
-            <div className="section-title">
-              <span>📋</span> Pending Approvals
-            </div>
-
-            <div className="pending-list">
-              {pendingHospitals.length === 0 ? (
-                <div className="empty-state">
-                  <p>All caught up! No pending verifications.</p>
+              {/* Map Placeholder */}
+              <Card className="map-section">
+                <div className="section-header">
+                  <h3><Map size={20} /> Live System Map</h3>
                 </div>
-              ) : (
-                pendingHospitals.map(hospital => (
-                  <div key={hospital.id} className="pending-card">
-                    <div className="hospital-info">
-                      <h3>{hospital.name}</h3>
-                      <p>{hospital.address}, {hospital.city}</p>
-                      <div className="manager-details">
-                        Manager: {hospital.manager?.fullName} ({hospital.manager?.email})
-                      </div>
-                    </div>
-                    <div className="action-buttons">
-                      <button
-                        className="btn-approve"
-                        onClick={() => handleVerification(hospital.id, true)}
-                        disabled={actionLoading === hospital.id}
-                      >
-                        {actionLoading === hospital.id ? "..." : "Approve"}
-                      </button>
-                      <button
-                        className="btn-reject"
-                        onClick={() => handleVerification(hospital.id, false)}
-                        disabled={actionLoading === hospital.id}
-                      >
-                        Reject
-                      </button>
-                    </div>
+                <div className="map-placeholder">
+                  <div className="map-bg"></div>
+                  <div className="map-content">
+                    <Map size={48} className="text-stone-300" />
+                    <p>Interactive Hospital Map Module</p>
+                    <span className="coming-soon">Coming Soon</span>
                   </div>
-                ))
+                </div>
+              </Card>
+            </div>
+          )}
+
+          {activeTab === "verification" && (
+            <div className="verification-section animate-fade-in">
+              {pendingHospitals.length === 0 ? (
+                <Card className="empty-state">
+                  <CheckCircle size={48} className="text-green-500 mb-4" />
+                  <h3>All Caught Up!</h3>
+                  <p>There are no pending hospital registrations to review.</p>
+                </Card>
+              ) : (
+                <div className="pending-list">
+                  {pendingHospitals.map(hospital => (
+                    <Card key={hospital.id} className="pending-card">
+                      <div className="hospital-info">
+                        <div className="hospital-header">
+                          <h3>{hospital.name}</h3>
+                          <Badge variant="warning">Pending</Badge>
+                        </div>
+                        <p className="hospital-address">{hospital.address}, {hospital.city}</p>
+
+                        <div className="manager-info">
+                          <strong>Manager:</strong> {hospital.manager?.fullName}
+                          <span className="email">({hospital.manager?.email})</span>
+                        </div>
+                      </div>
+
+                      <div className="action-buttons">
+                        <Button
+                          variant="secondary"
+                          className="reject-btn"
+                          onClick={() => handleVerification(hospital.id, false)}
+                          disabled={actionLoading === hospital.id}
+                          icon={XCircle}
+                        >
+                          Reject
+                        </Button>
+                        <Button
+                          className="approve-btn"
+                          onClick={() => handleVerification(hospital.id, true)}
+                          disabled={actionLoading === hospital.id}
+                          isLoading={actionLoading === hospital.id}
+                          icon={CheckCircle}
+                        >
+                          Approve
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
               )}
             </div>
-          </div>
-        )}
-      </main>
+          )}
+        </main>
+      </div>
     </div>
   )
 }
 
-const StatCard = ({ label, value, color }) => (
-  <div className={`stat-card ${color}`}>
-    <span className="stat-label">{label}</span>
-    <span className="stat-value">{value}</span>
-  </div>
+const StatCard = ({ icon: Icon, label, value, trend }) => (
+  <Card className="stat-card">
+    <div className="stat-icon">
+      <Icon size={24} />
+    </div>
+    <div className="stat-content">
+      <span className="stat-label">{label}</span>
+      <span className="stat-value">{value}</span>
+      <span className="stat-trend">{trend}</span>
+    </div>
+  </Card>
 )

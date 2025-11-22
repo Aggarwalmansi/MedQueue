@@ -1,186 +1,244 @@
-"use client"
-import React from "react"
-import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
-import Header from "../components/Header"
-import Footer from "../components/Footer"
-import "../styles/HomePage.css"
+import React from 'react';
+import { Link } from 'react-router-dom';
+import Button from '../components/ui/Button';
+import Card from '../components/ui/Card';
+import { Activity, Search, Shield, Clock, ArrowRight, MapPin, Phone, Zap, CheckCircle } from 'lucide-react';
+import '../styles/HomePage.css';
 
-export default function HomePage() {
-  const navigate = useNavigate()
-  const { isAuthenticated } = useAuth()
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  const handleFindBeds = () => {
-    if (isAuthenticated) {
-      navigate("/dashboard")
-    } else {
-      navigate("/login")
-    }
-  }
-
+const HomePage = () => {
   return (
     <div className="home-page">
-      <Header scrolled={scrolled} />
+      {/* Navbar */}
+      <nav className="navbar">
+        <div className="container-max navbar-content">
+          <div className="logo-section">
+            <div className="logo-icon">
+              <Activity size={20} />
+            </div>
+            <span className="logo-text">MedQueue</span>
+          </div>
+          <div className="nav-links">
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How it Works</a>
+            <a href="#hospitals">For Hospitals</a>
+          </div>
+          <div className="nav-actions">
+            <Link to="/login">
+              <Button variant="ghost" size="sm">Log In</Button>
+            </Link>
+            <Link to="/signup">
+              <Button size="sm">Get Started</Button>
+            </Link>
+          </div>
+        </div>
+      </nav>
 
       {/* Hero Section */}
-      <section className="hero">
-        <div className="hero-content">
-          <h1 className="hero-title">Find Hospital Beds Near You</h1>
-          <p className="hero-subtitle">Real-time bed availability. Emergency-ready. Save lives.</p>
+      <section className="hero-section">
+        <div className="hero-blobs">
+          <div className="blob blob-1"></div>
+          <div className="blob blob-2"></div>
+        </div>
 
-          <button onClick={handleFindBeds} className="cta-button">
-            <span className="button-text">Find Beds Near Me</span>
-            <span className="button-arrow">→</span>
-          </button>
+        <div className="container-max hero-content">
+          <div className="hero-badge animate-fade-in">
+            <span className="pulse-dot"></span>
+            <span>Live Bed Availability in Your Area</span>
+          </div>
 
-          <p className="hero-cta-subtext">
-            {isAuthenticated ? "View hospitals in your area now" : "Sign in to search hospitals near you"}
+          <h1 className="hero-title animate-slide-up">
+            Emergency Care,<br />
+            <span className="gradient-text">Simplified.</span>
+          </h1>
+
+          <p className="hero-subtitle animate-slide-up">
+            Instantly find available hospital beds, book appointments, and coordinate emergency response. Every second counts.
           </p>
-        </div>
 
-        <div className="hero-background">
-          <div className="gradient-circle circle-1"></div>
-          <div className="gradient-circle circle-2"></div>
-          <div className="gradient-circle circle-3"></div>
-        </div>
-      </section>
-
-      {/* Problem Section */}
-      <section className="problem-section">
-        <div className="container">
-          <h2>The Problem We Solve</h2>
-          <div className="problem-grid">
-            <div className="problem-card">
-              <div className="problem-number">1</div>
-              <h3>Wasted Time</h3>
-              <p>Patients and families waste crucial minutes moving between hospitals searching for available beds</p>
-            </div>
-            <div className="problem-card">
-              <div className="problem-number">2</div>
-              <h3>Lost Lives</h3>
-              <p>Every minute counts in emergencies. Delays can mean the difference between recovery and tragedy</p>
-            </div>
-            <div className="problem-card">
-              <div className="problem-number">3</div>
-              <h3>No Real-Time Data</h3>
-              <p>Hospital capacity information is fragmented, outdated, or completely unavailable</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Solution Section */}
-      <section className="solution-section">
-        <div className="container">
-          <h2>How MedQueue Works</h2>
-          <div className="solution-grid">
-            <div className="solution-card">
-              <div className="solution-icon">📍</div>
-              <h3>Location Detection</h3>
-              <p>MedQueue instantly identifies your location with precision</p>
-            </div>
-            <div className="solution-card">
-              <div className="solution-icon">🔍</div>
-              <h3>Real-Time Search</h3>
-              <p>Find available beds across all nearby hospitals instantly</p>
-            </div>
-            <div className="solution-card">
-              <div className="solution-icon">🛏️</div>
-              <h3>Bed Availability</h3>
-              <p>View bed types (ICU, General, Pediatric, Ventilator)</p>
-            </div>
-            <div className="solution-card">
-              <div className="solution-icon">📞</div>
-              <h3>Direct Contact</h3>
-              <p>One-click contact to hospitals without delays</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="features-section">
-        <div className="container">
-          <h2>Why Hospitals Choose MedQueue</h2>
-          <div className="features-grid">
-            <div className="feature-item">
-              <h4>For Patients</h4>
-              <ul>
-                <li>Find nearest hospital in seconds</li>
-                <li>Real-time bed availability</li>
-                <li>Multiple bed type options</li>
-                <li>Zero configuration needed</li>
-              </ul>
-            </div>
-            <div className="feature-item">
-              <h4>For Hospital Managers</h4>
-              <ul>
-                <li>Easy bed management dashboard</li>
-                <li>Real-time bed status updates</li>
-                <li>Visibility across the region</li>
-                <li>Automated availability tracking</li>
-              </ul>
-            </div>
-            <div className="feature-item">
-              <h4>For Administrators</h4>
-              <ul>
-                <li>System-wide monitoring</li>
-                <li>Regional hospital management</li>
-                <li>User and role management</li>
-                <li>Data analytics and insights</li>
-              </ul>
-            </div>
+          <div className="hero-buttons animate-slide-up">
+            <Link to="/patient" className="w-full-mobile">
+              <Button size="lg" className="shadow-lg" icon={Search}>
+                Find a Bed Now
+              </Button>
+            </Link>
+            <Link to="/login" className="w-full-mobile">
+              <Button variant="secondary" size="lg">
+                Hospital Login
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
       <section className="stats-section">
-        <div className="container">
-          <div className="stats-grid">
-            <div className="stat-item">
-              <h3>5000+</h3>
-              <p>Beds Tracked</p>
+        <div className="container-max stats-grid">
+          <StatItem number="24/7" label="Real-time Availability" />
+          <StatItem number="500+" label="Partner Hospitals" />
+          <StatItem number="< 2m" label="Average Response" />
+          <StatItem number="10k+" label="Lives Impacted" />
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      {/* The Golden Hour Guaranteed Section */}
+      <section id="features" className="golden-hour-section">
+        <div className="container-max">
+          <div className="section-header text-center">
+            <h2 className="section-title">The Golden Hour Guaranteed</h2>
+            <p className="section-subtitle">
+              In medical emergencies, the first hour is critical. MedQueue ensures you reach the right hospital with available resources, instantly.
+            </p>
+          </div>
+
+          <div className="features-grid">
+            <FeatureCard
+              icon={Zap}
+              title="Instant Matching"
+              description="Our algorithm instantly identifies the nearest hospital with available beds, ICU capacity, and required equipment."
+            />
+            <FeatureCard
+              icon={MapPin}
+              title="Smart Routing"
+              description="GPS-based viability scoring considers both distance and bed availability, not just proximity."
+            />
+            <FeatureCard
+              icon={Shield}
+              title="Digital Entry Pass"
+              description="Secure your spot with a QR-coded digital ticket. Hospitals are notified before you arrive."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* Three Steps to Care Section */}
+      <section id="how-it-works" className="three-steps-section">
+        <div className="container-max">
+          <div className="section-header text-center" style={{ textAlign: 'center' }}>
+            <h2 className="section-title2">Three Steps to Care</h2>
+            <p className="section-subtitle">Simple, fast, and designed for emergencies</p>
+          </div>
+
+          <div className="steps-grid">
+            <div className="step-item">
+              <div className="step-number">1</div>
+              <h3 className="step-title">Enable Location</h3>
+              <p className="step-desc">Allow GPS access to instantly find nearby hospitals with real-time bed availability</p>
             </div>
-            <div className="stat-item">
-              <h3>500+</h3>
-              <p>Hospitals Connected</p>
+            <div className="step-item">
+              <div className="step-number">2</div>
+              <h3 className="step-title">Choose & Notify</h3>
+              <p className="step-desc">Select a hospital and submit basic details. The hospital is instantly alerted.</p>
             </div>
-            <div className="stat-item">
-              <h3>50K+</h3>
-              <p>Lives Helped</p>
+            <div className="step-item">
+              <div className="step-number">3</div>
+              <h3 className="step-title">Navigate & Arrive</h3>
+              <p className="step-desc">Get your digital ticket with QR code and navigate directly via Google Maps</p>
             </div>
-            <div className="stat-item">
-              <h3>24/7</h3>
-              <p>Real-Time Service</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Streamline Emergency Admissions Section */}
+      <section id="hospitals" className="streamline-section">
+        <div className="container-max streamline-content">
+          <div className="streamline-text">
+            <div className="badge-pill">For Healthcare Providers</div>
+            <h2 className="streamline-title">Streamline Emergency Admissions</h2>
+            <p className="streamline-desc">
+              MedQueue's command center gives hospital managers real-time control over bed inventory and incoming patient notifications. Update capacity in seconds, not minutes.
+            </p>
+
+            <ul className="streamline-list">
+              <li>
+                <CheckCircle className="check-icon" size={20} />
+                <div>
+                  <strong>2-Second Updates</strong>
+                  <p>Simple +/- controls for bed counts</p>
+                </div>
+              </li>
+              <li>
+                <CheckCircle className="check-icon" size={20} />
+                <div>
+                  <strong>Live Patient Queue</strong>
+                  <p>See incoming patients with severity levels</p>
+                </div>
+              </li>
+              <li>
+                <CheckCircle className="check-icon" size={20} />
+                <div>
+                  <strong>Acknowledge or Divert</strong>
+                  <p>One-tap actions for rapid triage</p>
+                </div>
+              </li>
+            </ul>
+
+            <Link to="/signup">
+              <Button size="lg" className="mt-6">Join as Hospital Partner</Button>
+            </Link>
+          </div>
+          <div className="streamline-image">
+            {/* Placeholder for the UI screenshot from the user's request */}
+            <div className="mock-ui-card">
+              <div className="mock-header">
+                <span>Live Capacity</span>
+                <span className="mock-badge">Active</span>
+              </div>
+              <div className="mock-stats">
+                <div className="mock-row"><span>General Beds</span><strong>12</strong></div>
+                <div className="mock-row"><span>ICU Beds</span><strong>5</strong></div>
+                <div className="mock-row"><span>Oxygen Beds</span><strong>8</strong></div>
+              </div>
+              <div className="mock-queue">
+                <div className="mock-queue-title">Incoming Patients (3)</div>
+                <div className="mock-patient-card critical">
+                  <span>Sarah Johnson</span>
+                  <span className="tag-critical">Critical</span>
+                </div>
+                <div className="mock-patient-card moderate">
+                  <span>Michael Chen</span>
+                  <span className="tag-moderate">Moderate</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="final-cta-section">
-        <div className="container">
-          <h2>Ready to Save Lives?</h2>
-          <p>Start finding available hospital beds right now</p>
-          <button onClick={handleFindBeds} className="cta-button large">
-            <span className="button-text">Get Started Now</span>
-            <span className="button-arrow">→</span>
-          </button>
+      <section className="cta-section">
+        <div className="cta-bg-pattern"></div>
+        <div className="container-max cta-content">
+          <h2 className="cta-title">Ready to prioritize your health?</h2>
+          <p className="cta-subtitle">
+            Join thousands of users who trust MedQueue for their emergency medical needs.
+          </p>
+          <Link to="/signup">
+            <Button variant="accent" size="lg" className="shadow-lg" icon={ArrowRight}>
+              Get Started for Free
+            </Button>
+          </Link>
         </div>
       </section>
-
-      <Footer />
     </div>
-  )
-}
+  );
+};
+
+const StatItem = ({ number, label }) => (
+  <div className="stat-item text-center">
+    <div className="stat-number">{number}</div>
+    <div className="stat-label">{label}</div>
+  </div>
+);
+
+const FeatureCard = ({ icon: Icon, title, description }) => (
+  <Card className="feature-card">
+    <div className="feature-icon">
+      <Icon size={24} />
+    </div>
+    <h3 className="feature-title">{title}</h3>
+    <p className="feature-desc">{description}</p>
+  </Card>
+);
+
+export default HomePage;

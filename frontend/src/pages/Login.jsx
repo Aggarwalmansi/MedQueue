@@ -1,148 +1,126 @@
-"use client"
-import React from "react"
-import { useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
-import { useAuth } from "../context/AuthContext"
-import "../styles/Login.css"
-import GoogleLoginButton from "../components/GoogleLoginButton.jsx"
-import "../styles/GoogleLoginButton.css"
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import Button from '../components/ui/Button';
+import Input from '../components/ui/Input';
+import { Mail, Lock, ArrowRight, AlertCircle, Activity } from 'lucide-react';
+import '../styles/Login.css';
 
 const Login = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
-  const { login, error } = useAuth()
-  const navigate = useNavigate()
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-
-    const result = await login(email, password)
-
-    if (result.success) {
-      navigate("/dashboard")
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      await login(email, password);
+      navigate('/dashboard');
+    } catch (err) {
+      setError('Invalid email or password');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false)
-  }
+  };
 
   return (
-    <div className="login-container">
-      <div className="login-gradient-side">
-        <div className="login-gradient-content">
-          <div className="login-logo">MedQueue</div>
-          <h2 className="login-gradient-title">Welcome Back</h2>
-          <p className="login-gradient-subtitle">Find hospital beds near you in seconds. Emergency-ready. Real-time. Life-saving.</p>
-          
-          <div className="login-features">
-            <div className="login-feature-item">
-              <div className="login-feature-icon">✓</div>
-              <p>Real-time bed availability</p>
-            </div>
-            <div className="login-feature-item">
-              <div className="login-feature-icon">✓</div>
-              <p>Instant hospital search</p>
-            </div>
-            <div className="login-feature-item">
-              <div className="login-feature-icon">✓</div>
-              <p>Distance-based filtering</p>
-            </div>
+    <div className="login-page">
+      {/* Left Side - Brand */}
+      <div className="login-brand-section">
+        <div className="brand-bg-pattern"></div>
+        <div className="brand-blob blob-top"></div>
+        <div className="brand-blob blob-bottom"></div>
+
+        <div className="brand-content">
+          <div className="brand-logo-container">
+            <Activity size={40} className="text-white" />
           </div>
+          <h1 className="brand-title">MedQueue</h1>
+          <p className="brand-subtitle">
+            Real-time hospital bed availability and emergency coordination at your fingertips.
+          </p>
         </div>
       </div>
 
-      <div className="login-form-side">
-        <div className="login-form-wrapper">
-          <div className="login-form-header">
-            <h1>Sign In</h1>
-            <p>Access your MedQueue account</p>
+      {/* Right Side - Form */}
+      <div className="login-form-section animate-fade-in">
+        <div className="login-form-container">
+          <div className="form-header">
+            <h2 className="form-title">Welcome Back</h2>
+            <p className="form-subtitle">Sign in to access your dashboard</p>
           </div>
 
           {error && (
-            <div className="login-error-box">
-              <span className="login-error-icon">⚠</span>
+            <div className="error-alert animate-fade-in">
+              <AlertCircle size={20} />
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="login-form">
-            <div className="login-input-group">
-              <label htmlFor="email" className="login-label">Email Address</label>
-              <input
-                id="email"
+            <div className="form-group">
+              <label className="form-label">Email Address</label>
+              <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="login-input"
                 placeholder="name@example.com"
                 required
+                icon={Mail}
               />
             </div>
 
-            <div className="login-input-group">
-              <label htmlFor="password" className="login-label">Password</label>
-              <div className="login-password-wrapper">
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="login-input"
-                  placeholder="••••••••"
-                  required
-                />
-                <button
-                  type="button"
-                  className="login-password-toggle"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? "Hide" : "Show"}
-                </button>
+            <div className="form-group">
+              <div className="flex justify-between items-center">
+                <label className="form-label">Password</label>
+                <Link to="/forgot-password" class="forgot-link">
+                  Forgot Password?
+                </Link>
               </div>
-              <Link to="/forgot-password" className="login-forgot-link">
-                Forgot password?
-              </Link>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                icon={Lock}
+              />
             </div>
 
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className="login-button"
+              className="w-full shadow-lg"
+              isLoading={loading}
+              icon={ArrowRight}
             >
-              {loading ? (
-                <>
-                  <span className="login-spinner"></span>
-                  Signing in...
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </button>
+              Sign In
+            </Button>
           </form>
 
-          <div className="login-divider">
-            <span>or</span>
+          <div className="divider">
+            <div className="divider-line"></div>
+            <span className="divider-text">Or continue with</span>
           </div>
 
-          <div style={{ marginTop: "20px", textAlign: "center" }}>
-            <GoogleLoginButton />
+          <div className="social-buttons">
+            <Button variant="secondary" className="justify-center">Google</Button>
           </div>
 
-          <p className="login-signup-text">
+          <p className="signup-prompt">
             Don't have an account?{" "}
-            <Link to="/signup" className="login-signup-link">
-              Create one
+            <Link to="/signup" className="signup-link">
+              Create Account
             </Link>
-          </p>
-
-          <p className="login-footer-text">
-            By signing in, you agree to our Terms of Service and Privacy Policy
           </p>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

@@ -1,100 +1,73 @@
 import React from 'react';
+import { MapPin, Navigation, Send, Activity, Wind, HeartPulse } from 'lucide-react';
+import '../../styles/HospitalCard.css';
 
 const HospitalCard = ({ hospital, onNotify }) => {
-    const { name, distance, bedsGeneral, bedsICU, bedsOxygen, viabilityScore } = hospital;
-
-    const getBadgeColor = (count) => {
-        if (count === 0) return '#ff4d4f'; // Red
-        if (count < 5) return '#faad14'; // Orange
-        return '#52c41a'; // Green
-    };
-
-    const styles = {
-        card: {
-            backgroundColor: '#fff',
-            borderRadius: '16px',
-            padding: '20px',
-            marginBottom: '16px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px',
-            border: '1px solid #f0f0f0',
-            transition: 'transform 0.2s',
-            cursor: 'pointer'
-        },
-        header: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-start'
-        },
-        name: {
-            fontSize: '1.2rem',
-            fontWeight: '700',
-            color: '#1f1f1f',
-            margin: 0
-        },
-        distance: {
-            fontSize: '0.9rem',
-            color: '#8c8c8c',
-            fontWeight: '500'
-        },
-        badges: {
-            display: 'flex',
-            gap: '8px',
-            flexWrap: 'wrap'
-        },
-        badge: {
-            padding: '4px 12px',
-            borderRadius: '20px',
-            fontSize: '0.8rem',
-            fontWeight: '600',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
-        },
-        button: {
-            backgroundColor: '#ff4d4f',
-            color: '#fff',
-            border: 'none',
-            padding: '12px',
-            borderRadius: '12px',
-            fontSize: '1rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            marginTop: '8px',
-            width: '100%',
-            textAlign: 'center'
-        }
-    };
+    const { name, distance, bedsGeneral, bedsICU, bedsOxygen, address } = hospital;
 
     return (
-        <div style={styles.card}>
-            <div style={styles.header}>
-                <div>
-                    <h3 style={styles.name}>{name}</h3>
-                    <span style={styles.distance}>{distance} km away</span>
+        <div className="hospital-card-premium">
+            <div className="card-header">
+                <div className="flex-1">
+                    <h3 className="hospital-name">{name}</h3>
+                    <div className="hospital-meta">
+                        <div className="meta-item">
+                            <Navigation size={14} />
+                            <span>{distance} km</span>
+                        </div>
+                        <div className="meta-dot"></div>
+                        <div className="meta-item">
+                            <MapPin size={14} />
+                            <span className="truncate" style={{ maxWidth: '200px' }}>{address}</span>
+                        </div>
+                    </div>
                 </div>
-                {/* Optional: Display Viability Score for debugging or transparency */}
-                {/* <div style={{ fontSize: '0.8rem', color: '#ccc' }}>Score: {Math.round(viabilityScore)}</div> */}
+
+                <div className="response-badge">
+                    &lt; 2 mins
+                </div>
             </div>
 
-            <div style={styles.badges}>
-                <span style={{ ...styles.badge, backgroundColor: getBadgeColor(bedsICU) }}>
-                    ICU: {bedsICU}
-                </span>
-                <span style={{ ...styles.badge, backgroundColor: getBadgeColor(bedsOxygen) }}>
-                    O2: {bedsOxygen}
-                </span>
-                <span style={{ ...styles.badge, backgroundColor: getBadgeColor(bedsGeneral) }}>
-                    Gen: {bedsGeneral}
-                </span>
+            {/* Stats Grid */}
+            <div className="stats-grid">
+                <StatChip
+                    icon={HeartPulse}
+                    label="ICU"
+                    count={bedsICU}
+                    critical={true}
+                />
+                <StatChip
+                    icon={Wind}
+                    label="Oxygen"
+                    count={bedsOxygen}
+                />
+                <StatChip
+                    icon={Activity}
+                    label="General"
+                    count={bedsGeneral}
+                />
             </div>
 
-            <button style={styles.button} onClick={() => onNotify(hospital)}>
+            <button
+                className="notify-btn"
+                onClick={() => onNotify(hospital)}
+            >
+                <Send size={16} />
                 Notify Hospital
             </button>
+        </div>
+    );
+};
+
+const StatChip = ({ icon: Icon, label, count, critical }) => {
+    const isAvailable = count > 0;
+    const className = `stat-chip ${isAvailable ? 'available' : 'critical'}`;
+
+    return (
+        <div className={className}>
+            <Icon size={14} />
+            <span className="stat-label">{label}:</span>
+            <span className="stat-value">{count}</span>
         </div>
     );
 };

@@ -1,7 +1,7 @@
 "use client"
-import React from "react"
-import { useState } from "react"
+import React, { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
+import { Activity, ArrowLeft, Mail, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 import "../styles/ForgotPassword.css"
 
 const ForgotPassword = () => {
@@ -30,104 +30,86 @@ const ForgotPassword = () => {
         setSubmitted(true)
         setTimeout(() => {
           navigate("/reset-password", { state: { email } })
-        }, 2000)
+        }, 3000)
       } else {
         setError(data.message || "Error requesting password reset")
       }
     } catch (err) {
       setError("Network error. Please try again.")
-      console.error("[v0] Forgot password error:", err)
+      console.error("Forgot password error:", err)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="forgot-password-container">
-      <div className="forgot-password-gradient-side">
-        <div className="forgot-password-gradient-content">
-          <div className="forgot-password-logo">MedQueue</div>
-          <h2 className="forgot-password-gradient-title">Recovery Steps</h2>
-          <p className="forgot-password-gradient-subtitle">We'll send password reset instructions to your email within seconds.</p>
-          
-          <div className="forgot-password-steps">
-            <div className="forgot-password-step">
-              <div className="forgot-password-step-number">1</div>
-              <p>Enter your email address</p>
-            </div>
-            <div className="forgot-password-step">
-              <div className="forgot-password-step-number">2</div>
-              <p>Check your email for reset link</p>
-            </div>
-            <div className="forgot-password-step">
-              <div className="forgot-password-step-number">3</div>
-              <p>Create your new password</p>
-            </div>
+    <div className="auth-page">
+      <div className="auth-card">
+        <div className="auth-header">
+          <div className="auth-logo">
+            <Activity size={24} />
+            <span>MedQueue</span>
           </div>
+          <h1 className="auth-title">Reset Password</h1>
+          <p className="auth-subtitle">Enter your email to receive reset instructions</p>
         </div>
-      </div>
 
-      <div className="forgot-password-form-side">
-        <div className="forgot-password-form-wrapper">
-          <div className="forgot-password-form-header">
-            <h1>Reset Password</h1>
-            <p>Enter your email to receive reset instructions</p>
-          </div>
-
-          {submitted ? (
-            <div className="forgot-password-success-box">
-              <div className="forgot-password-success-icon">✓</div>
-              <h3>Check Your Email</h3>
-              <p>We've sent password reset instructions to {email}</p>
-              <p className="forgot-password-small-text">Redirecting to reset page...</p>
+        {submitted ? (
+          <div className="success-state">
+            <div className="success-icon">
+              <CheckCircle size={32} />
             </div>
-          ) : (
-            <>
-              {error && (
-                <div className="forgot-password-error-box">
-                  <span className="forgot-password-error-icon">⚠</span>
-                  {error}
-                </div>
+            <h3>Check Your Email</h3>
+            <p>We've sent password reset instructions to <strong>{email}</strong></p>
+            <p className="redirect-text">Redirecting to reset page...</p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="auth-form">
+            {error && (
+              <div className="error-alert">
+                <AlertCircle size={16} />
+                {error}
+              </div>
+            )}
+
+            <div className="form-group">
+              <label htmlFor="email">Email Address</label>
+              <div className="input-wrapper">
+                <Mail size={18} className="input-icon" />
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="form-input"
+                  placeholder="name@example.com"
+                  required
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary btn-full"
+            >
+              {loading ? (
+                <>
+                  <Loader2 size={18} className="animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                "Send Reset Instructions"
               )}
+            </button>
+          </form>
+        )}
 
-              <form onSubmit={handleSubmit} className="forgot-password-form">
-                <div className="forgot-password-input-group">
-                  <label htmlFor="email" className="forgot-password-label">Email Address</label>
-                  <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="forgot-password-input"
-                    placeholder="name@example.com"
-                    required
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="forgot-password-button"
-                >
-                  {loading ? (
-                    <>
-                      <span className="forgot-password-spinner"></span>
-                      Sending...
-                    </>
-                  ) : (
-                    "Send Reset Instructions"
-                  )}
-                </button>
-              </form>
-            </>
-          )}
-
-          <p className="forgot-password-back-text">
-            Remember your password?{" "}
-            <Link to="/login" className="forgot-password-back-link">
-              Back to Sign In
-            </Link>
-          </p>
+        <div className="auth-footer">
+          <Link to="/login" className="back-link">
+            <ArrowLeft size={16} />
+            Back to Sign In
+          </Link>
         </div>
       </div>
     </div>
