@@ -108,7 +108,13 @@ const Login = () => {
           </div>
 
           <div className="social-buttons">
-            <Button variant="secondary" className="justify-center">Google</Button>
+            <Button
+              variant="secondary"
+              className="justify-center"
+              onClick={() => window.location.href = `${import.meta.env.VITE_BACKEND_URL || 'http://localhost:5001'}/api/auth/google`}
+            >
+              Google
+            </Button>
           </div>
 
           <p className="signup-prompt">

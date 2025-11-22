@@ -1,73 +1,46 @@
 import React from 'react';
-import { MapPin, Navigation, Send, Activity, Wind, HeartPulse } from 'lucide-react';
+import { MapPin, Navigation, Activity } from 'lucide-react';
 import '../../styles/HospitalCard.css';
 
 const HospitalCard = ({ hospital, onNotify }) => {
-    const { name, distance, bedsGeneral, bedsICU, bedsOxygen, address } = hospital;
+    const { name, address, distance, bedsGeneral, bedsICU, bedsOxygen } = hospital;
 
     return (
-        <div className="hospital-card-premium">
-            <div className="card-header">
-                <div className="flex-1">
-                    <h3 className="hospital-name">{name}</h3>
-                    <div className="hospital-meta">
-                        <div className="meta-item">
-                            <Navigation size={14} />
-                            <span>{distance} km</span>
+        <div className="hospital-card">
+            <div className="card-content">
+                <div className="card-header">
+                    <div>
+                        <h3 className="hospital-name">{name}</h3>
+                        <div className="hospital-location">
+                            <Navigation size={14} className="location-icon" />
+                            <span>{address}</span>
                         </div>
-                        <div className="meta-dot"></div>
-                        <div className="meta-item">
-                            <MapPin size={14} />
-                            <span className="truncate" style={{ maxWidth: '200px' }}>{address}</span>
-                        </div>
+                    </div>
+                    <div className="distance-badge">
+                        {distance} km
                     </div>
                 </div>
 
-                <div className="response-badge">
-                    &lt; 2 mins
+                <div className="beds-container">
+                    <div className="bed-badge general">
+                        <span className="badge-icon">G</span>
+                        General: {bedsGeneral}
+                    </div>
+                    <div className="bed-badge icu">
+                        <span className="badge-icon">I</span>
+                        ICU: {bedsICU}
+                    </div>
+                    <div className="bed-badge oxygen">
+                        <span className="badge-icon">O</span>
+                        Oxygen: {bedsOxygen}
+                    </div>
                 </div>
+
+                <button className="notify-btn" onClick={() => onNotify(hospital)}>
+                    <Activity size={18} />
+                    Notify Hospital
+                </button>
             </div>
-
-            {/* Stats Grid */}
-            <div className="stats-grid">
-                <StatChip
-                    icon={HeartPulse}
-                    label="ICU"
-                    count={bedsICU}
-                    critical={true}
-                />
-                <StatChip
-                    icon={Wind}
-                    label="Oxygen"
-                    count={bedsOxygen}
-                />
-                <StatChip
-                    icon={Activity}
-                    label="General"
-                    count={bedsGeneral}
-                />
-            </div>
-
-            <button
-                className="notify-btn"
-                onClick={() => onNotify(hospital)}
-            >
-                <Send size={16} />
-                Notify Hospital
-            </button>
-        </div>
-    );
-};
-
-const StatChip = ({ icon: Icon, label, count, critical }) => {
-    const isAvailable = count > 0;
-    const className = `stat-chip ${isAvailable ? 'available' : 'critical'}`;
-
-    return (
-        <div className={className}>
-            <Icon size={14} />
-            <span className="stat-label">{label}:</span>
-            <span className="stat-value">{count}</span>
         </div>
     );
 };

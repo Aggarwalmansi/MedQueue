@@ -15,6 +15,7 @@ import BookingForm from "./pages/BookingForm"
 
 import PatientDashboard from "./pages/PatientDashboard"
 import Footer from "./components/Footer"
+import Header from "./components/Header"
 import MyBookings from "./pages/MyBookings"
 
 function App() {
@@ -25,7 +26,15 @@ function App() {
           <div style={{ flex: 1 }}>
             <Routes>
               <Route path="/" element={<HomePage />} />
-              <Route path="/patient" element={<PatientDashboard />} />
+              <Route
+                path="/patient"
+                element={
+                  <ProtectedRoute allowedRoles={['PATIENT', 'admin']}>
+                    <Header />
+                    <PatientDashboard />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/oauth-callback" element={<OAuthCallback />} />
@@ -38,7 +47,8 @@ function App() {
               <Route
                 path="/my-bookings"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute allowedRoles={['PATIENT', 'admin']}>
+                    <Header />
                     <MyBookings />
                   </ProtectedRoute>
                 }

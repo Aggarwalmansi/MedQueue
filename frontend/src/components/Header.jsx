@@ -30,9 +30,9 @@ export default function Header({ scrolled }) {
 
         {/* Navigation */}
         <nav className="nav-links">
-          <Link to="/#how-it-works">How It Works</Link>
           <Link to="/#features">Features</Link>
-          <Link to="/#contact">Contact</Link>
+          <Link to="/#how-it-works">How It Works</Link>
+          <Link to="/hospital-login">For Hospitals</Link>
         </nav>
 
         {/* Auth Buttons */}

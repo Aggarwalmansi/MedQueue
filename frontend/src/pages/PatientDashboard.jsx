@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { io } from 'socket.io-client';
 import HospitalCard from '../components/Patient/HospitalCard';
 import BookingModal from '../components/Patient/BookingModal';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import Badge from '../components/ui/Badge';
-import { MapPin, Navigation, Activity, Search, AlertCircle } from 'lucide-react';
+import { Navigation, Search, AlertCircle } from 'lucide-react';
 import '../styles/PatientDashboard.css';
 
 const PatientDashboard = () => {
@@ -14,6 +14,11 @@ const PatientDashboard = () => {
     const [hospitals, setHospitals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    // Search & Filter State
+    const [searchQuery, setSearchQuery] = useState('');
+    const [sortBy, setSortBy] = useState('distance'); // distance, availability, name
+    const [showFilters, setShowFilters] = useState(false);
 
     // Modal State
     const [selectedHospital, setSelectedHospital] = useState(null);
@@ -38,6 +43,23 @@ const PatientDashboard = () => {
             setError("Geolocation is not supported by this browser.");
             setLoading(false);
         }
+
+        // 2. Socket.IO Connection for Real-time Updates
+        const socket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:5001");
+
+        socket.on('connect', () => {
+            console.log('Connected to socket server');
+        });
+
+        socket.on('hospitalUpdated', (updatedHospital) => {
+            setHospitals(prevHospitals =>
+                prevHospitals.map(h => h.id === updatedHospital.id ? { ...h, ...updatedHospital } : h)
+            );
+        });
+
+        return () => {
+            socket.disconnect();
+        };
     }, []);
 
     const fetchHospitals = async (lat, lng) => {
@@ -65,34 +87,54 @@ const PatientDashboard = () => {
         setSelectedHospital(null);
     };
 
+    // Filter and Sort Logic
+    const filteredHospitals = hospitals
+        .filter(hospital =>
+            hospital.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            hospital.address?.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .sort((a, b) => {
+            if (sortBy === 'distance') return (a.distance || 0) - (b.distance || 0);
+            if (sortBy === 'availability') return (b.totalBeds || 0) - (a.totalBeds || 0);
+            if (sortBy === 'name') return a.name.localeCompare(b.name);
+            return 0;
+        });
+
     return (
         <div className="patient-dashboard">
-            {/* Header / Hero */}
-            <div className="dashboard-header">
-                <div className="container-max header-content">
-                    <div className="header-brand">
-                        <div className="brand-icon">
-                            <Activity size={24} />
-                        </div>
-                        <div>
-                            <h1 className="brand-name">Emergency Help</h1>
-                            <p className="brand-status">Finding nearest care...</p>
-                        </div>
-                    </div>
-
-                    {location ? (
-                        <Badge variant="success" className="location-badge">
-                            <Navigation size={12} /> GPS Active
-                        </Badge>
-                    ) : (
-                        <Badge variant="warning" className="location-badge">
-                            <Search size={12} /> Locating...
-                        </Badge>
-                    )}
-                </div>
-            </div>
+            {/* Note: Header is now rendered in App.jsx layout */}
 
             <div className="container-max dashboard-content">
+                {/* Search and Filter Bar */}
+                <div className="search-filter-bar animate-fade-in">
+                    <div className="search-wrapper">
+                        <Search size={20} className="search-icon" />
+                        <input
+                            type="text"
+                            placeholder="Search Hospitals by Name"
+                            className="search-input"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="filter-controls">
+                        <button className="filter-btn" onClick={() => setShowFilters(!showFilters)}>
+                            <div className="filter-icon-wrapper">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                                </svg>
+                            </div>
+                            Filters
+                        </button>
+                    </div>
+                </div>
+
+                {/* Page Title */}
+                <div className="dashboard-title-section animate-fade-in">
+                    <h1 className="page-title">Find Available Hospital Beds</h1>
+                </div>
+
                 {/* Loading State */}
                 {loading && (
                     <div className="loading-container animate-fade-in">
@@ -106,43 +148,36 @@ const PatientDashboard = () => {
                 {!loading && (
                     <>
                         {/* Show Empty State if Error OR No Hospitals */}
-                        {(error || hospitals.length === 0) ? (
+                        {(error || filteredHospitals.length === 0) ? (
                             <div className="empty-state-container animate-fade-in">
                                 <Card className="empty-state-card">
                                     <div className="empty-icon-wrapper">
                                         {error ? <AlertCircle size={32} /> : <Search size={32} />}
                                     </div>
                                     <h3 className="empty-title">
-                                        {error ? "Unable to Load Hospitals" : "No Hospitals Found Nearby"}
+                                        {error ? "Unable to Load Hospitals" : "No Hospitals Found"}
                                     </h3>
                                     <p className="empty-desc">
                                         {error
                                             ? "We encountered an issue while fetching hospital data. Please check your connection."
-                                            : "We couldn't find any partner hospitals in your current location. Try increasing your search radius."}
+                                            : "We couldn't find any hospitals matching your search. Try adjusting your filters."}
                                     </p>
                                     <Button
                                         variant="primary"
-                                        onClick={() => window.location.reload()}
+                                        onClick={() => {
+                                            if (error) window.location.reload();
+                                            else { setSearchQuery(''); setSortBy('distance'); }
+                                        }}
                                         className="empty-action-btn"
                                     >
-                                        {error ? "Retry Connection" : "Refresh Search"}
+                                        {error ? "Retry Connection" : "Clear Filters"}
                                     </Button>
                                 </Card>
                             </div>
                         ) : (
                             <div className="hospital-list animate-slide-up">
-                                <div className="list-header">
-                                    <div>
-                                        <h2 className="list-title">Nearby Hospitals</h2>
-                                        <p className="list-subtitle">Sorted by distance and availability</p>
-                                    </div>
-                                    <span className="count-badge">
-                                        {hospitals.length} Found
-                                    </span>
-                                </div>
-
                                 <div className="hospitals-grid">
-                                    {hospitals.map(hospital => (
+                                    {filteredHospitals.map(hospital => (
                                         <HospitalCard
                                             key={hospital.id}
                                             hospital={hospital}

@@ -3,56 +3,82 @@
     min-height: 100vh;
     background-color: var(--stone-50);
     padding-bottom: 4rem;
+    padding-top: 7rem;
 }
 
-.dashboard-header {
-    background-color: white;
-    border-bottom: 1px solid var(--stone-200);
-    padding: 1.5rem 0;
+/* Header is now external, so we adjust top padding/margin if needed */
+.dashboard-title-section {
     margin-bottom: 2rem;
 }
 
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.header-brand {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.brand-icon {
-    width: 3rem;
-    height: 3rem;
-    background-color: var(--primary-600);
-    color: white;
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.brand-name {
-    font-size: 1.5rem;
+.page-title {
+    font-size: 2rem;
     font-weight: 800;
     color: var(--stone-900);
     margin: 0;
-    line-height: 1.2;
 }
 
-.brand-status {
-    font-size: 0.875rem;
-    color: var(--stone-500);
-    margin: 0;
+/* Search & Filter Bar */
+.search-filter-bar {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
 }
 
-.location-badge {
+.search-wrapper {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+}
+
+.search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--stone-400);
+    pointer-events: none;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 2.75rem;
+    border: 1px solid var(--stone-200);
+    border-radius: var(--radius-lg);
+    font-size: 0.95rem;
+    background-color: white;
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.filter-controls {
+    display: flex;
+    gap: 1rem;
+}
+
+.filter-btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    padding: 0 1.25rem;
+    background-color: white;
+    border: 1px solid var(--stone-200);
+    border-radius: var(--radius-lg);
+    font-weight: 600;
+    color: var(--stone-700);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    background-color: var(--stone-50);
+    border-color: var(--stone-300);
 }
 
 /* Loading State */
@@ -128,45 +154,11 @@
     min-width: 200px;
 }
 
-/* List Header */
-.list-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    margin-bottom: 2rem;
-}
-
-.list-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--stone-900);
-    margin-bottom: 0.25rem;
-}
-
-.list-subtitle {
-    color: var(--stone-500);
-    font-size: 0.875rem;
-}
-
-.count-badge {
-    background-color: var(--stone-100);
-    color: var(--stone-600);
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
+/* Grid */
 .hospitals-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-}
-
-@media (min-width: 768px) {
-    .hospitals-grid {
-        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    }
+    gap: 1rem;
 }
 
 @keyframes spin {
