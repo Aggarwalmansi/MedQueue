@@ -1,0 +1,133 @@
+.rating-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease-out;
+}
+
+.rating-modal-content {
+    background-color: white;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    width: 100%;
+    max-width: 28rem;
+    padding: 1.5rem;
+    position: relative;
+    animation: scaleIn 0.2s ease-out;
+}
+
+.rating-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    color: #9ca3af;
+    /* gray-400 */
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.rating-modal-close:hover {
+    color: #4b5563;
+    /* gray-600 */
+}
+
+.rating-modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    /* gray-800 */
+    margin-bottom: 0.5rem;
+}
+
+.rating-modal-desc {
+    color: #6b7280;
+    /* gray-500 */
+    margin-bottom: 1.5rem;
+}
+
+.rating-modal-stars {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.rating-text {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #2563eb;
+    /* blue-600 */
+}
+
+.rating-form-group {
+    margin-bottom: 1.5rem;
+}
+
+.rating-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    /* gray-700 */
+    margin-bottom: 0.5rem;
+}
+
+.rating-textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    /* gray-200 */
+    border-radius: 0.75rem;
+    outline: none;
+    resize: none;
+    transition: all 0.2s;
+}
+
+.rating-textarea:focus {
+    border-color: transparent;
+    box-shadow: 0 0 0 2px #3b82f6;
+    /* blue-500 */
+}
+
+.rating-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.rating-btn-cancel {
+    flex: 1;
+}
+
+.rating-btn-submit {
+    flex: 1;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}

@@ -80,6 +80,23 @@ router.patch('/hospitals/:id/verify', async (req, res) => {
         });
 
         res.json({ message: `Hospital ${isVerified ? 'approved' : 'rejected'}`, hospital });
+
+        // Emit real-time update
+        if (req.io) {
+            // We need to fetch the full hospital object with bed counts to match the frontend expectation
+            // or just emit what we have if the frontend handles it. 
+            // The frontend expects `totalBeds` which is a calculated field in the patient route, 
+            // but the `hospital_updated_public` event in PatientDashboard.jsx expects an object that it merges.
+            // Let's send the updated hospital data.
+            const updatedHospital = await prisma.hospital.findUnique({
+                where: { id: parseInt(id) }
+            });
+
+            const totalBeds = updatedHospital.bedsGeneral + updatedHospital.bedsICU + updatedHospital.bedsOxygen;
+            const hospitalWithTotalBeds = { ...updatedHospital, totalBeds };
+
+            req.io.emit('hospital_updated_public', hospitalWithTotalBeds);
+        }
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });

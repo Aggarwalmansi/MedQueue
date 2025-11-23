@@ -9,6 +9,7 @@ import TriageDashboard from "../components/manager/TriageDashboard"
 import ManagerMainDashboard from "../components/manager/ManagerMainDashboard"
 import BookingManagement from "../components/manager/BookingManagement"
 import HospitalProfilePage from "../components/manager/HospitalProfilePage"
+import ERManagementPanel from "../components/manager/ERManagementPanel"
 
 export default function ManagerDashboard() {
   const { user, token } = useAuth()
@@ -24,15 +25,8 @@ export default function ManagerDashboard() {
   }, [])
 
   useEffect(() => {
-    if (user?.hospitalId) {
+    if (user) {
       fetchHospitalData()
-    } else if (user && !user.hospitalId) {
-      // Fallback if hospitalId is not in user object (e.g. after login)
-      // Ideally we should fetch it or it should be in the token/user context
-      // For now, we can try to fetch "my hospital" endpoint if it existed, 
-      // or just wait/retry. But let's assume it's there or we handle the loading.
-      // If user is loaded but no hospitalId, maybe they aren't a manager or data is missing.
-      setLoading(false);
     }
   }, [user, token])
 
@@ -107,6 +101,14 @@ export default function ManagerDashboard() {
               </li>
               <li>
                 <button
+                  className={`nav-link ${currentPage === "er-management" ? "active" : ""}`}
+                  onClick={() => setCurrentPage("er-management")}
+                >
+                  🚑 ER Wait Times
+                </button>
+              </li>
+              <li>
+                <button
                   className={`nav-link ${currentPage === "profile" ? "active" : ""}`}
                   onClick={() => setCurrentPage("profile")}
                 >
@@ -122,6 +124,7 @@ export default function ManagerDashboard() {
             {currentPage === "history" && <AdmittedPatients hospital={hospital} token={token} />}
             {currentPage === "dashboard" && <ManagerMainDashboard hospital={hospital} token={token} />}
             {currentPage === "bookings" && <BookingManagement hospital={hospital} token={token} />}
+            {currentPage === "er-management" && <ERManagementPanel hospital={hospital} token={token} />}
             {currentPage === "profile" && (
               <HospitalProfilePage hospital={hospital} setHospital={setHospital} token={token} />
             )}

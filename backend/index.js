@@ -54,7 +54,7 @@ app.use(express.json());
 
 const session = require('express-session');
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'keyboard cat',
+  secret: process.env.SESSION_SECRET || 'banaliya_na',
   resave: true,
   saveUninitialized: true
 }));
@@ -68,7 +68,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api", require('./routes/patient.routes')); // Public routes: /hospitals, /bookings
 app.use("/api/admin", require('./routes/admin.routes'));
 // Hospital routes (Auth handled internally or bypassed for test)
-app.use("/api/hospital", hospitalRoutes);
+app.use("/api/hospital", authMiddleware, hospitalRoutes);
 
 app.get("/test", (req, res) => {
   res.json({ message: "Test route is working!" })

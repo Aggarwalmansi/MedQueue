@@ -18,7 +18,7 @@ const TriageDashboard = ({ hospital, token }) => {
         if (!hospital?.id) return;
 
         // Connect to Socket.io
-        const newSocket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:3000");
+        const newSocket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:5001");
         setSocket(newSocket);
 
         newSocket.emit('join_hospital', hospital.id);
@@ -54,7 +54,7 @@ const TriageDashboard = ({ hospital, token }) => {
 
     const fetchBookings = async () => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"}/api/hospital/bookings?status=INCOMING`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"}/api/hospital/bookings?status=INCOMING`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (response.ok) {
@@ -78,7 +78,7 @@ const TriageDashboard = ({ hospital, token }) => {
         setInventory(newInventory);
 
         try {
-            await fetch(`${import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"}/api/hospital/inventory`, {
+            await fetch(`${import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"}/api/hospital/inventory`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
@@ -94,7 +94,7 @@ const TriageDashboard = ({ hospital, token }) => {
 
     const handleBookingAction = async (bookingId, status) => {
         try {
-            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || "http://localhost:3000"}/api/hospital/bookings/${bookingId}/status`, {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"}/api/hospital/bookings/${bookingId}/status`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

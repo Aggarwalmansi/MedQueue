@@ -1,0 +1,27 @@
+.star-rating-container {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.star-icon {
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s ease;
+    color: #e5e7eb;
+    /* gray-300 */
+    fill: none;
+}
+
+.star-icon.filled {
+    color: #facc15;
+    /* yellow-400 */
+    fill: #facc15;
+}
+
+.star-icon.interactive:hover {
+    transform: scale(1.1);
+}
+
+.star-icon.readonly {
+    cursor: default;
+}

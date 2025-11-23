@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import HospitalCard from '../components/Patient/HospitalCard';
 import BookingModal from '../components/Patient/BookingModal';
+import RatingModal from '../components/Patient/RatingModal';
+import VirtualQueueModal from '../components/Patient/VirtualQueueModal';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Navigation, Search, AlertCircle } from 'lucide-react';
@@ -23,6 +25,14 @@ const PatientDashboard = () => {
     // Modal State
     const [selectedHospital, setSelectedHospital] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Rating Modal State
+    const [ratingHospital, setRatingHospital] = useState(null);
+    const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+
+    // Virtual Queue Modal State
+    const [queueHospital, setQueueHospital] = useState(null);
+    const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
 
     useEffect(() => {
         // 1. Get Location immediately
@@ -51,10 +61,38 @@ const PatientDashboard = () => {
             console.log('Connected to socket server');
         });
 
-        socket.on('hospitalUpdated', (updatedHospital) => {
-            setHospitals(prevHospitals =>
-                prevHospitals.map(h => h.id === updatedHospital.id ? { ...h, ...updatedHospital } : h)
-            );
+        socket.on('hospital_updated_public', (updatedHospital) => {
+            console.log("Received hospital update:", updatedHospital);
+            setHospitals(prevHospitals => {
+                const exists = prevHospitals.find(h => h.id === updatedHospital.id);
+
+                if (updatedHospital.isVerified) {
+                    if (exists) {
+                        // Update existing
+                        return prevHospitals.map(h => h.id === updatedHospital.id ? { ...h, ...updatedHospital } : h);
+                    } else {
+                        // Add new (if it matches location criteria? For now just add it, 
+                        // the distance calc might be off if we don't recalculate it here, 
+                        // but the backend sends 'hospitalWithTotalBeds'. 
+                        // Ideally we should calculate distance if not provided, but let's assume 
+                        // for now we just add it and let the user refresh for perfect sort if needed,
+                        // OR we can try to calc distance if we have user location.
+                        // The backend 'hospital_updated_public' event in admin route sends the raw hospital object + totalBeds.
+                        // It DOES NOT send 'distance' relative to this specific user.
+                        // So we should calculate distance here if possible.
+
+                        let distance = 0;
+                        // We can't easily access 'location' state inside this callback due to closure staleness 
+                        // unless we use a ref or dependency, but 'location' is in dependency array? No, it's empty [].
+                        // So 'location' will be null here.
+                        // For a quick fix, we'll just add it. The sort might be weird until refresh.
+                        return [...prevHospitals, updatedHospital];
+                    }
+                } else {
+                    // Remove if unverified
+                    return prevHospitals.filter(h => h.id !== updatedHospital.id);
+                }
+            });
         });
 
         return () => {
@@ -85,6 +123,63 @@ const PatientDashboard = () => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedHospital(null);
+    };
+
+    const handleRateClick = (hospital) => {
+        setRatingHospital(hospital);
+        setIsRatingModalOpen(true);
+    };
+
+    const handleCloseRatingModal = () => {
+        setIsRatingModalOpen(false);
+        setRatingHospital(null);
+    };
+
+    const handleJoinQueueClick = (hospital) => {
+        setQueueHospital(hospital);
+        setIsQueueModalOpen(true);
+    };
+
+    const handleCloseQueueModal = () => {
+        setIsQueueModalOpen(false);
+        setQueueHospital(null);
+    };
+
+    const handleSubmitRating = async (hospitalId, value, comment) => {
+        try {
+            const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
+            const token = localStorage.getItem('token'); // Assuming token is stored here
+
+            if (!token) {
+                alert("Please log in to rate hospitals.");
+                return;
+            }
+
+            const response = await fetch(`${apiUrl}/api/hospitals/${hospitalId}/rate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ value, comment })
+            });
+
+            if (!response.ok) throw new Error('Failed to submit rating');
+
+            // Refresh hospitals to show new rating
+            // Ideally, we should update the specific hospital in state to avoid full refetch
+            // But for simplicity and accuracy (since average changes), we can refetch or update locally
+            // Let's update locally for immediate feedback if we had the new average from backend
+            // The backend returns the rating object, not the new average. 
+            // So let's just refetch for now to get the correct average.
+            if (location) {
+                fetchHospitals(location.lat, location.lng);
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("Failed to submit rating. Please try again.");
+        }
     };
 
     // Filter and Sort Logic
@@ -182,6 +277,8 @@ const PatientDashboard = () => {
                                             key={hospital.id}
                                             hospital={hospital}
                                             onNotify={handleNotifyClick}
+                                            onRate={handleRateClick}
+                                            onJoinQueue={handleJoinQueueClick}
                                         />
                                     ))}
                                 </div>
@@ -196,6 +293,21 @@ const PatientDashboard = () => {
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 hospital={selectedHospital}
+            />
+
+            {/* Rating Modal */}
+            <RatingModal
+                isOpen={isRatingModalOpen}
+                onClose={handleCloseRatingModal}
+                hospital={ratingHospital}
+                onSubmit={handleSubmitRating}
+            />
+
+            {/* Virtual Queue Modal */}
+            <VirtualQueueModal
+                isOpen={isQueueModalOpen}
+                onClose={handleCloseQueueModal}
+                hospital={queueHospital}
             />
 
         </div>

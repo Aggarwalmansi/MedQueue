@@ -23,6 +23,7 @@ model User {
   // Relations
   hospital  Hospital? // If user is a hospital manager
   bookings  Booking[] // If user is a patient
+  ratings   Rating[]  // User ratings
   refreshTokens RefreshToken[]
   
   createdAt DateTime @default(now())
@@ -45,14 +46,44 @@ model Hospital {
   bedsICU       Int      @default(0)
   bedsOxygen    Int      @default(0)
   doctorsActive Int      @default(0)
+
+  // ER Wait Times (JSON structure)
+  erWaitTimes   Json?    // { critical: { avgWaitMinutes: 10, ... }, ... }
   
   // Relations
   managerId     Int      @unique
   manager       User     @relation(fields: [managerId], references: [id])
   bookings      Booking[]
+  ratings       Rating[]
+  virtualQueue  VirtualQueueEntry[]
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+// 5. Virtual Queue: For ER waiting list
+model VirtualQueueEntry {
+  id            Int      @id @default(autoincrement())
+  hospitalId    Int
+  hospital      Hospital @relation(fields: [hospitalId], references: [id])
+  
+  patientName   String
+  severity      Severity
+  checkInTime   DateTime @default(now())
+  status        QueueStatus @default(WAITING)
+  
+  // Optional: Link to registered user if logged in
+  userId        Int?
+  
+  updatedAt     DateTime @updatedAt
+}
+
+enum QueueStatus {
+  WAITING
+  CALLED
+  COMPLETED
+  EXPIRED
+  CANCELLED
 }
 
 // 3. Bookings: The transactional link between Patient and Hospital
@@ -74,6 +105,21 @@ model Booking {
   user        User?    @relation(fields: [userId], references: [id])
   hospitalId  Int
   hospital    Hospital @relation(fields: [hospitalId], references: [id])
+}
+
+// 4. Ratings: User feedback for hospitals
+model Rating {
+  id         Int      @id @default(autoincrement())
+  value      Int      // 1-5
+  comment    String?
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  hospitalId Int
+  hospital   Hospital @relation(fields: [hospitalId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, hospitalId]) // One rating per user per hospital
 }
 
 // Enums for strict typing
