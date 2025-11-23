@@ -2,13 +2,16 @@
 import React, { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { useAuth } from "../context/AuthContext"
-import { User, LogOut, ChevronDown } from "lucide-react"
+import { User, LogOut, ChevronDown, Search } from "lucide-react"
+import SearchBar from "./Search/SearchBar"
+import SearchOverlay from "./Search/SearchOverlay"
 import "../styles/Header.css"
 
 export default function Header({ scrolled }) {
   const navigate = useNavigate()
   const { isAuthenticated, user, logout } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
 
   const handleLogout = () => {
     logout()
@@ -27,6 +30,19 @@ export default function Header({ scrolled }) {
           </div>
           <span className="logo-text">MedQueue</span>
         </div>
+
+        {/* Desktop Search */}
+        <div className="desktop-search">
+          <SearchBar />
+        </div>
+
+        {/* Mobile Search Icon */}
+        <button
+          className="mobile-search-trigger"
+          onClick={() => setIsMobileSearchOpen(true)}
+        >
+          <Search size={24} />
+        </button>
 
         {/* Navigation */}
         <nav className="nav-links">
@@ -77,6 +93,11 @@ export default function Header({ scrolled }) {
           )}
         </div>
       </div>
+
+      <SearchOverlay
+        isOpen={isMobileSearchOpen}
+        onClose={() => setIsMobileSearchOpen(false)}
+      />
     </header>
   )
 }

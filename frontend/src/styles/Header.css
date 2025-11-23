@@ -58,10 +58,36 @@
   display: none;
 }
 
-@media (min-width: 768px) {
+.desktop-search {
+  display: none;
+  flex: 1;
+  justify-content: center;
+  margin: 0 2rem;
+}
+
+.mobile-search-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--stone-600);
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+@media (min-width: 1024px) {
   .nav-links {
     display: flex;
     gap: 2rem;
+  }
+
+  .desktop-search {
+    display: flex;
+  }
+
+  .mobile-search-trigger {
+    display: none;
   }
 }
 

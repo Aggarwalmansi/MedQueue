@@ -69,6 +69,7 @@ app.use("/api", require('./routes/patient.routes')); // Public routes: /hospital
 app.use("/api/admin", require('./routes/admin.routes'));
 // Hospital routes (Auth handled internally or bypassed for test)
 app.use("/api/hospital", authMiddleware, hospitalRoutes);
+app.use("/api/search", require('./routes/search.routes'));
 
 app.get("/test", (req, res) => {
   res.json({ message: "Test route is working!" })

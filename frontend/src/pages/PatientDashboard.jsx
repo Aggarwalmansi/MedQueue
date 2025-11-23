@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import HospitalCard from '../components/Patient/HospitalCard';
 import BookingModal from '../components/Patient/BookingModal';
@@ -13,13 +13,15 @@ import '../styles/SpecializationFilter.css';
 
 const PatientDashboard = () => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const urlQuery = searchParams.get('q');
     const [location, setLocation] = useState(null);
     const [hospitals, setHospitals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     // Search & Filter State
-    const [searchQuery, setSearchQuery] = useState('');
+    const [searchQuery, setSearchQuery] = useState(urlQuery || '');
     const [sortBy, setSortBy] = useState('distance'); // distance, availability, name
     const [showFilters, setShowFilters] = useState(false);
     const [specializationFilter, setSpecializationFilter] = useState(''); // New filter
@@ -35,6 +37,12 @@ const PatientDashboard = () => {
     // Virtual Queue Modal State
     const [queueHospital, setQueueHospital] = useState(null);
     const [isQueueModalOpen, setIsQueueModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (urlQuery) {
+            setSearchQuery(urlQuery);
+        }
+    }, [urlQuery]);
 
     useEffect(() => {
         // 1. Get Location immediately
@@ -102,12 +110,29 @@ const PatientDashboard = () => {
         };
     }, []);
 
+    // Refetch when URL query changes
+    useEffect(() => {
+        if (location) {
+            fetchHospitals(location.lat, location.lng);
+        }
+    }, [searchParams, specializationFilter]);
+
     const fetchHospitals = async (lat, lng) => {
         try {
             const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-            const url = specializationFilter
-                ? `${apiUrl}/api/hospitals?lat=${lat}&lng=${lng}&specialization=${specializationFilter}`
-                : `${apiUrl}/api/hospitals?lat=${lat}&lng=${lng}`;
+
+            let url;
+            if (searchQuery) {
+                // Use search endpoint if query exists
+                url = `${apiUrl}/api/search?q=${encodeURIComponent(searchQuery)}`;
+                if (lat && lng) url += `&lat=${lat}&lng=${lng}`;
+            } else {
+                // Use standard list endpoint
+                url = specializationFilter
+                    ? `${apiUrl}/api/hospitals?lat=${lat}&lng=${lng}&specialization=${specializationFilter}`
+                    : `${apiUrl}/api/hospitals?lat=${lat}&lng=${lng}`;
+            }
+
             const response = await fetch(url);
             if (!response.ok) throw new Error('Failed to fetch hospitals');
             const data = await response.json();
@@ -189,10 +214,15 @@ const PatientDashboard = () => {
 
     // Filter and Sort Logic
     const filteredHospitals = hospitals
-        .filter(hospital =>
-            hospital.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            hospital.address?.toLowerCase().includes(searchQuery.toLowerCase())
-        )
+        .filter(hospital => {
+            // If using backend search, results are already filtered by query
+            // But we might want to apply local text filter if user types in dashboard input
+            // For now, let's assume dashboard input updates searchQuery which triggers refetch or local filter
+            // If we want real-time local filter on top of backend results:
+            return hospital.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                hospital.address?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (hospital.searchScore && hospital.searchScore > 0); // Include backend matches
+        })
         .sort((a, b) => {
             if (sortBy === 'distance') return (a.distance || 0) - (b.distance || 0);
             if (sortBy === 'availability') return (b.totalBeds || 0) - (a.totalBeds || 0);
@@ -214,7 +244,17 @@ const PatientDashboard = () => {
                             placeholder="Search Hospitals by Name"
                             className="search-input"
                             value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onChange={(e) => {
+                                setSearchQuery(e.target.value);
+                                // Optional: Debounce and update URL or just local filter
+                                // For now, let's keep it local until Enter or just local filter
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    setSearchParams({ q: searchQuery });
+                                    if (location) fetchHospitals(location.lat, location.lng);
+                                }
+                            }}
                         />
                     </div>
 
@@ -232,7 +272,26 @@ const PatientDashboard = () => {
 
                 {/* Page Title */}
                 <div className="dashboard-title-section animate-fade-in">
-                    <h1 className="page-title">Find Available Hospital Beds</h1>
+                    <h1 className="page-title">
+                        {urlQuery ? `Search Results for "${urlQuery}"` : "Find Available Hospital Beds"}
+                    </h1>
+
+                    {urlQuery && (
+                        <div className="active-filters-bar">
+                            <span className="filter-chip">
+                                Search: {urlQuery}
+                                <button onClick={() => {
+                                    setSearchParams({});
+                                    setSearchQuery('');
+                                    // Trigger refetch for all hospitals
+                                    // Simplest is to reload or let useEffect handle it if we depend on searchQuery
+                                    // But fetchHospitals depends on lat/lng.
+                                    // Let's just reload for now or manually fetch
+                                    navigate('/patient');
+                                }}>×</button>
+                            </span>
+                        </div>
+                    )}
 
                     {/* Specialization Filter */}
                     <div className="specialization-filter">
