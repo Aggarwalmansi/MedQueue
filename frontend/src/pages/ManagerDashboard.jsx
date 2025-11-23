@@ -10,6 +10,7 @@ import ManagerMainDashboard from "../components/manager/ManagerMainDashboard"
 import BookingManagement from "../components/manager/BookingManagement"
 import HospitalProfilePage from "../components/manager/HospitalProfilePage"
 import ERManagementPanel from "../components/manager/ERManagementPanel"
+import FacilitiesManagement from "../components/manager/FacilitiesManagement"
 
 export default function ManagerDashboard() {
   const { user, token } = useAuth()
@@ -109,6 +110,14 @@ export default function ManagerDashboard() {
               </li>
               <li>
                 <button
+                  className={`nav-link ${currentPage === "facilities" ? "active" : ""}`}
+                  onClick={() => setCurrentPage("facilities")}
+                >
+                  🏥 Facilities
+                </button>
+              </li>
+              <li>
+                <button
                   className={`nav-link ${currentPage === "profile" ? "active" : ""}`}
                   onClick={() => setCurrentPage("profile")}
                 >
@@ -125,6 +134,7 @@ export default function ManagerDashboard() {
             {currentPage === "dashboard" && <ManagerMainDashboard hospital={hospital} token={token} />}
             {currentPage === "bookings" && <BookingManagement hospital={hospital} token={token} />}
             {currentPage === "er-management" && <ERManagementPanel hospital={hospital} token={token} />}
+            {currentPage === "facilities" && <FacilitiesManagement hospital={hospital} token={token} />}
             {currentPage === "profile" && (
               <HospitalProfilePage hospital={hospital} setHospital={setHospital} token={token} />
             )}

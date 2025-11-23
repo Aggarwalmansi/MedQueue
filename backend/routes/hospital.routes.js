@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
+const { calculateProfileCompleteness } = require('../utils/profileCompleteness');
 
 const prisma = new PrismaClient();
 
@@ -231,6 +232,53 @@ router.patch('/virtual-queue/:id/status', async (req, res) => {
         res.json({ message: 'Queue entry updated', entry });
     } catch (error) {
         console.error('Error updating queue entry:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// PUT /api/hospital/facilities - Update facility information (Manager only)
+router.put('/facilities', async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+        const hospital = await prisma.hospital.findUnique({
+            where: { managerId: userId }
+        });
+
+        if (!hospital) {
+            return res.status(404).json({ message: 'Hospital not found' });
+        }
+
+        const { specializations, diagnostics, criticalCare, supportServices, accreditations } = req.body;
+
+        // Build update data object (only include provided fields)
+        const updateData = {};
+        if (specializations !== undefined) updateData.specializations = specializations;
+        if (diagnostics !== undefined) updateData.diagnostics = diagnostics;
+        if (criticalCare !== undefined) updateData.criticalCare = criticalCare;
+        if (supportServices !== undefined) updateData.supportServices = supportServices;
+        if (accreditations !== undefined) updateData.accreditations = accreditations;
+
+        // Update hospital
+        const updatedHospital = await prisma.hospital.update({
+            where: { id: hospital.id },
+            data: updateData
+        });
+
+        // Calculate and update profile completeness
+        const profileCompleteness = calculateProfileCompleteness(updatedHospital);
+        await prisma.hospital.update({
+            where: { id: hospital.id },
+            data: { profileCompleteness }
+        });
+
+        res.json({
+            message: 'Facilities updated successfully',
+            hospital: { ...updatedHospital, profileCompleteness }
+        });
+    } catch (error) {
+        console.error('Error updating facilities:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });

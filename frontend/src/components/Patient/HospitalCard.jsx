@@ -95,6 +95,27 @@ const HospitalCard = ({ hospital, onNotify, onRate, onJoinQueue }) => {
                     </div>
                 )}
 
+                {/* Specializations Section */}
+                {hospital.specializations && hospital.specializations.length > 0 && (
+                    <div className="specializations-section">
+                        <div className="spec-badges">
+                            {hospital.specializations.slice(0, 3).map((spec, idx) => (
+                                <div key={idx} className="spec-badge-small">
+                                    {spec.department}
+                                </div>
+                            ))}
+                            {hospital.specializations.length > 3 && (
+                                <div className="spec-badge-more">
+                                    +{hospital.specializations.length - 3} more
+                                </div>
+                            )}
+                        </div>
+                        <a href={`/hospital/${hospital.id}`} className="view-profile-link">
+                            View Full Profile →
+                        </a>
+                    </div>
+                )}
+
                 <div className="card-actions">
                     <button className="notify-btn" onClick={() => onNotify(hospital)}>
                         <Activity size={18} />

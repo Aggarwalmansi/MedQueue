@@ -1,0 +1,56 @@
+/* Add to existing PatientDashboard.css */
+
+.specialization-filter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.specialization-filter label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.spec-filter-select {
+    padding: 0.5rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.spec-filter-select:focus {
+    outline: none;
+    border-color: #0d9488;
+}
+
+.filter-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    background: #f0fdfa;
+    color: #0d9488;
+    border: 1px solid #0d9488;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+@media (max-width: 640px) {
+    .specialization-filter {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .spec-filter-select {
+        width: 100%;
+    }
+}

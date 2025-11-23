@@ -1,0 +1,98 @@
+.security-page {
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.security-hero {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #1e293b;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.hero-icon {
+    color: #2dd4bf;
+}
+
+.security-hero h1 {
+    font-size: 2.5rem;
+    margin: 0;
+}
+
+.security-hero p {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    max-width: 600px;
+}
+
+.security-content {
+    max-width: 1000px;
+    margin: -3rem auto 4rem;
+    padding: 0 2rem;
+}
+
+.security-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.security-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.card-icon {
+    color: #0d9488;
+    margin-bottom: 1rem;
+}
+
+.security-card h3 {
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.security-card p {
+    color: #64748b;
+    line-height: 1.6;
+}
+
+.compliance-section {
+    text-align: center;
+    background: white;
+    padding: 3rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.compliance-section h2 {
+    color: #1e293b;
+    margin-bottom: 1rem;
+}
+
+.compliance-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.compliance-list li {
+    background: #f0fdfa;
+    color: #0f766e;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}

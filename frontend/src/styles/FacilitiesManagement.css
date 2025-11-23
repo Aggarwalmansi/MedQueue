@@ -1,0 +1,446 @@
+.facilities-management {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 2rem;
+    gap: 2rem;
+}
+
+.management-header h2 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 0.5rem;
+}
+
+.header-subtitle {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin: 0;
+}
+
+.completeness-indicator {
+    min-width: 200px;
+}
+
+.completeness-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.completeness-bar {
+    height: 1.5rem;
+    background: #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.completeness-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0d9488, #14b8a6);
+    transition: width 0.3s;
+}
+
+.completeness-value {
+    text-align: right;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0d9488;
+}
+
+/* Sections */
+.management-section {
+    background: white;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.section-header:hover {
+    background: #f3f4f6;
+}
+
+.section-header h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.section-content {
+    padding: 1.5rem;
+}
+
+/* Forms */
+.specialization-form {
+    background: #f9fafb;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb;
+}
+
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.form-header h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.form-input,
+.form-select {
+    padding: 0.625rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #0d9488;
+}
+
+.form-input-small {
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+}
+
+.form-input-small:focus {
+    outline: none;
+    border-color: #0d9488;
+}
+
+/* Subsections */
+.subsection {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.subsection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.subsection-header label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.specialist-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 100px 150px auto;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    align-items: center;
+}
+
+/* Buttons */
+.add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: #0d9488;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-btn:hover {
+    background: #0f766e;
+}
+
+.add-btn-small {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    background: #0d9488;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-btn-small:hover {
+    background: #0f766e;
+}
+
+.remove-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.remove-btn:hover {
+    background: #dc2626;
+}
+
+.remove-btn-small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.remove-btn-small:hover {
+    background: #dc2626;
+}
+
+/* Diagnostics */
+.diagnostic-item {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.diagnostic-header {
+    margin-bottom: 0.75rem;
+}
+
+.diagnostic-details {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 1.125rem;
+    height: 1.125rem;
+    cursor: pointer;
+}
+
+/* Equipment */
+.equipment-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.equipment-row label {
+    min-width: 120px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.equipment-inputs {
+    display: flex;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+/* Blood Bank */
+.blood-bank-section {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    background: #fef2f2;
+    border-radius: 8px;
+    border: 1px solid #fecaca;
+}
+
+.blood-stock-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.blood-input {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.blood-input label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+/* Services */
+.service-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.service-row .checkbox-label {
+    min-width: 150px;
+}
+
+/* Accreditations */
+.accreditation-row {
+    display: grid;
+    grid-template-columns: 1fr 200px auto;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    align-items: center;
+}
+
+/* Save Section */
+.save-section {
+    position: sticky;
+    bottom: 0;
+    background: white;
+    padding: 1.5rem;
+    border-top: 2px solid #e5e7eb;
+    display: flex;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.save-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 3rem;
+    background: #0d9488;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.125rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.save-btn:hover:not(:disabled) {
+    background: #0f766e;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15);
+}
+
+.save-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .facilities-management {
+        padding: 1rem;
+    }
+
+    .management-header {
+        flex-direction: column;
+    }
+
+    .specialist-row {
+        grid-template-columns: 1fr;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .diagnostic-details {
+        flex-direction: column;
+    }
+
+    .equipment-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .equipment-inputs {
+        width: 100%;
+    }
+
+    .accreditation-row {
+        grid-template-columns: 1fr;
+    }
+
+    .blood-stock-inputs {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

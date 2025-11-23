@@ -1,0 +1,344 @@
+/* Emergency Assessment Styles */
+
+.emergency-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1rem;
+}
+
+.emergency-modal {
+    background: white;
+    width: 100%;
+    max-width: 650px;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+}
+
+.emergency-header {
+    background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+    padding: 1.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.header-title h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.close-modal-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.close-modal-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.emergency-content {
+    padding: 2rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Question Flow */
+.question-card h3 {
+    font-size: 1.5rem;
+    color: #1e293b;
+    margin: 0 0 2rem;
+    line-height: 1.4;
+}
+
+.options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.option-btn {
+    padding: 1.25rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    color: #475569;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+}
+
+.option-btn:hover {
+    border-color: #0d9488;
+    background: #f0fdfa;
+    transform: translateY(-2px);
+}
+
+.option-btn.selected {
+    background: #0d9488;
+    border-color: #0d9488;
+    color: white;
+}
+
+.emergency-types-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.type-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.type-card:hover {
+    border-color: #0d9488;
+    background: #f0fdfa;
+    transform: translateY(-4px);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.type-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.type-card h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #334155;
+}
+
+/* Result Screen */
+.result-container {
+    text-align: center;
+}
+
+.urgency-badge {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    border-radius: 9999px;
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: white;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.urgency-critical {
+    background: #ef4444;
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+}
+
+.urgency-high {
+    background: #f97316;
+}
+
+.urgency-moderate {
+    background: #eab308;
+    color: #713f12;
+}
+
+.urgency-low {
+    background: #22c55e;
+}
+
+.action-list {
+    text-align: left;
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+}
+
+.action-list h4 {
+    margin: 0 0 1rem;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-list ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #475569;
+}
+
+.action-list li {
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+}
+
+.hospital-recommendations {
+    margin-top: 2rem;
+    text-align: left;
+}
+
+.hospital-recommendations h4 {
+    margin: 0 0 1rem;
+    color: #334155;
+}
+
+.rec-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    transition: all 0.2s;
+}
+
+.rec-card:hover {
+    border-color: #0d9488;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.rec-info h5 {
+    margin: 0 0 0.25rem;
+    font-size: 1.1rem;
+    color: #1e293b;
+}
+
+.rec-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.rec-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.rec-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.btn-primary {
+    background: #0d9488;
+    color: white;
+    border: none;
+}
+
+.btn-outline {
+    background: white;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+}
+
+.disclaimer {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: #fff1f2;
+    border: 1px solid #fecdd3;
+    border-radius: 8px;
+    color: #be123c;
+    font-size: 0.875rem;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    text-align: left;
+}
+
+/* Floating Button */
+.emergency-fab {
+    position: fixed;
+    bottom: 5rem;
+    right: 2rem;
+    z-index: 999;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #ef4444 0%, #f97316 100%);
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.4);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.emergency-fab:hover {
+    transform: scale(1.05);
+}
+
+@media (max-width: 640px) {
+    .emergency-modal {
+        height: 100%;
+        max-height: 100%;
+        border-radius: 0;
+    }
+
+    .emergency-types-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .emergency-fab span {
+        display: none;
+    }
+
+    .emergency-fab {
+        padding: 1rem;
+        border-radius: 50%;
+    }
+}

@@ -1,0 +1,110 @@
+.hospital-signup-page {
+    background: #f8fafc;
+    min-height: 100vh;
+}
+
+.signup-hero {
+    background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+    color: white;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.signup-hero h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.signup-hero p {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+
+.cta-button {
+    background: white;
+    color: #0f766e;
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.signup-content {
+    max-width: 1200px;
+    margin: -3rem auto 4rem;
+    padding: 0 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+}
+
+.benefits-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 3rem;
+}
+
+.benefit-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.benefit-icon {
+    color: #0d9488;
+}
+
+.benefit-card h3 {
+    font-size: 1.25rem;
+    color: #1e293b;
+    margin: 0;
+}
+
+.benefit-card p {
+    color: #64748b;
+    margin: 0;
+}
+
+.signup-form-container {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.signup-form-container h2 {
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+}
+
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+@media (max-width: 768px) {
+    .signup-content {
+        grid-template-columns: 1fr;
+        margin-top: 2rem;
+    }
+
+    .signup-hero h1 {
+        font-size: 2rem;
+    }
+}

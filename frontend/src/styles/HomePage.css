@@ -4,6 +4,7 @@
   min-height: 100vh;
   background-color: var(--stone-50);
 }
+
 /* Add this to the top of HomePage.css */
 .container-max {
   max-width: 1200px;
@@ -283,9 +284,10 @@
 
 .section-header {
   margin-bottom: 4rem;
-  max-width: 600px;
+  max-width: 800px;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
 }
 
 .section-title {
@@ -293,15 +295,17 @@
   font-weight: 800;
   color: var(--stone-900);
   margin-bottom: 1rem;
-  margin-left:1rem;
+  margin-left: 1rem;
 }
-.section-title2{
+
+.section-title2 {
   font-size: 2.25rem;
   font-weight: 800;
   color: var(--stone-900);
   margin-bottom: 1rem;
   /* margin-left:1rem; */
 }
+
 .section-subtitle {
   color: var(--stone-600);
   font-size: 1.125rem;
@@ -375,9 +379,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center; /* Ensure text is centered */
-  max-width: 300px;   /* Prevent text from getting too wide */
-  margin: 0 auto;  
+  text-align: center;
+  /* Ensure text is centered */
+  max-width: 300px;
+  /* Prevent text from getting too wide */
+  margin: 0 auto;
 }
 
 .step-number {

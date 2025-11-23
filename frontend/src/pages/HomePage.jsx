@@ -9,29 +9,7 @@ const HomePage = () => {
   return (
     <div className="home-page">
       {/* Navbar */}
-      <nav className="navbar">
-        <div className="container-max navbar-content">
-          <div className="logo-section">
-            <div className="logo-icon">
-              <Activity size={20} />
-            </div>
-            <span className="logo-text">MedQueue</span>
-          </div>
-          <div className="nav-links">
-            <a href="#features">Features</a>
-            <a href="#how-it-works">How it Works</a>
-            <a href="#hospitals">For Hospitals</a>
-          </div>
-          <div className="nav-actions">
-            <Link to="/login">
-              <Button variant="ghost" size="sm">Log In</Button>
-            </Link>
-            <Link to="/signup">
-              <Button size="sm">Get Started</Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+      {/* Navbar Removed - Global Header Used */}
 
       {/* Hero Section */}
       <section className="hero-section">

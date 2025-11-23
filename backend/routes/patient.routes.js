@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { PrismaClient } = require('@prisma/client');
+const { calculateProfileCompleteness } = require('../utils/profileCompleteness');
 
 const prisma = new PrismaClient();
 
@@ -24,10 +25,10 @@ function deg2rad(deg) {
 }
 
 // GET /api/patient/hospitals
-// Query params: lat, lng
+// Query params: lat, lng, specialization (optional)
 router.get('/hospitals', async (req, res) => {
     try {
-        const { lat, lng } = req.query;
+        const { lat, lng, specialization } = req.query;
 
         if (!lat || !lng) {
             return res.status(400).json({ message: 'Latitude and Longitude are required' });
@@ -50,8 +51,19 @@ router.get('/hospitals', async (req, res) => {
             }
         });
 
+        // Filter by specialization if provided
+        let filteredHospitals = hospitals;
+        if (specialization) {
+            filteredHospitals = hospitals.filter(hospital => {
+                if (!hospital.specializations || !Array.isArray(hospital.specializations)) return false;
+                return hospital.specializations.some(spec =>
+                    spec.department && spec.department.toLowerCase() === specialization.toLowerCase()
+                );
+            });
+        }
+
         // Calculate distance and viability score
-        const processedHospitals = hospitals.map(hospital => {
+        const processedHospitals = filteredHospitals.map(hospital => {
             const distance = getDistanceFromLatLonInKm(userLat, userLng, hospital.latitude, hospital.longitude);
             const totalBeds = hospital.bedsGeneral + hospital.bedsICU + hospital.bedsOxygen;
 
@@ -336,4 +348,55 @@ router.get('/hospitals/:id/virtual-queue/:entryId', async (req, res) => {
     }
 });
 
+// GET /api/hospitals/:id/facilities - Fetch full facility details
+router.get('/hospitals/:id/facilities', async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const hospital = await prisma.hospital.findUnique({
+            where: { id: parseInt(id) },
+            include: {
+                manager: {
+                    select: {
+                        email: true,
+                        phone: true
+                    }
+                },
+                ratings: true
+            }
+        });
+
+        if (!hospital) {
+            return res.status(404).json({ message: 'Hospital not found' });
+        }
+
+        // Calculate profile completeness
+        const profileCompleteness = calculateProfileCompleteness(hospital);
+
+        // Update if different
+        if (hospital.profileCompleteness !== profileCompleteness) {
+            await prisma.hospital.update({
+                where: { id: parseInt(id) },
+                data: { profileCompleteness }
+            });
+        }
+
+        res.json({
+            hospital,
+            facilities: {
+                specializations: hospital.specializations || [],
+                diagnostics: hospital.diagnostics || {},
+                criticalCare: hospital.criticalCare || {},
+                supportServices: hospital.supportServices || {},
+                accreditations: hospital.accreditations || []
+            },
+            profileCompleteness
+        });
+    } catch (error) {
+        console.error('Error fetching hospital facilities:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 module.exports = router;
+

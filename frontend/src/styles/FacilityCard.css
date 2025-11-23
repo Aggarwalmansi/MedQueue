@@ -1,0 +1,75 @@
+.facility-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s;
+}
+
+.facility-card.available {
+    border-color: #10b981;
+}
+
+.facility-card.busy {
+    border-color: #f59e0b;
+}
+
+.facility-card.unavailable {
+    border-color: #ef4444;
+    opacity: 0.7;
+}
+
+.facility-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.facility-icon {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+}
+
+.facility-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.facility-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.facility-spec {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.facility-status {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+}
+
+.status-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.status-text.available {
+    color: #10b981;
+}
+
+.status-text.unavailable {
+    color: #ef4444;
+}
+
+.wait-time,
+.next-slot {
+    font-size: 0.75rem;
+    color: #6b7280;
+}

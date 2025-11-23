@@ -49,6 +49,14 @@ model Hospital {
 
   // ER Wait Times (JSON structure)
   erWaitTimes   Json?    // { critical: { avgWaitMinutes: 10, ... }, ... }
+
+  // Hospital Facilities & Specialization
+  specializations  Json?  // Array of departments with specialists, equipment, beds
+  diagnostics      Json?  // MRI, CT, X-Ray, Ultrasound availability and specs
+  criticalCare     Json?  // Ventilators, dialysis, blood bank, ICU types
+  supportServices  Json?  // Pharmacy, cafeteria, parking, WiFi, etc.
+  accreditations   Json?  // NABH, NABL, JCI certifications with validity
+  profileCompleteness Int @default(0)  // 0-100 calculated score
   
   // Relations
   managerId     Int      @unique

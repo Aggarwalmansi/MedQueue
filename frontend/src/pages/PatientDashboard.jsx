@@ -9,6 +9,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Navigation, Search, AlertCircle } from 'lucide-react';
 import '../styles/PatientDashboard.css';
+import '../styles/SpecializationFilter.css';
 
 const PatientDashboard = () => {
     const navigate = useNavigate();
@@ -21,6 +22,7 @@ const PatientDashboard = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('distance'); // distance, availability, name
     const [showFilters, setShowFilters] = useState(false);
+    const [specializationFilter, setSpecializationFilter] = useState(''); // New filter
 
     // Modal State
     const [selectedHospital, setSelectedHospital] = useState(null);
@@ -103,7 +105,10 @@ const PatientDashboard = () => {
     const fetchHospitals = async (lat, lng) => {
         try {
             const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-            const response = await fetch(`${apiUrl}/api/hospitals?lat=${lat}&lng=${lng}`);
+            const url = specializationFilter
+                ? `${apiUrl}/api/hospitals?lat=${lat}&lng=${lng}&specialization=${specializationFilter}`
+                : `${apiUrl}/api/hospitals?lat=${lat}&lng=${lng}`;
+            const response = await fetch(url);
             if (!response.ok) throw new Error('Failed to fetch hospitals');
             const data = await response.json();
             setHospitals(data);
@@ -228,6 +233,35 @@ const PatientDashboard = () => {
                 {/* Page Title */}
                 <div className="dashboard-title-section animate-fade-in">
                     <h1 className="page-title">Find Available Hospital Beds</h1>
+
+                    {/* Specialization Filter */}
+                    <div className="specialization-filter">
+                        <label htmlFor="spec-filter">Filter by Specialization:</label>
+                        <select
+                            id="spec-filter"
+                            value={specializationFilter}
+                            onChange={(e) => {
+                                setSpecializationFilter(e.target.value);
+                                if (location) {
+                                    fetchHospitals(location.lat, location.lng);
+                                }
+                            }}
+                            className="spec-filter-select"
+                        >
+                            <option value="">All Hospitals</option>
+                            <option value="Cardiology">Cardiology</option>
+                            <option value="Neurology">Neurology</option>
+                            <option value="Orthopedics">Orthopedics</option>
+                            <option value="Pediatrics">Pediatrics</option>
+                            <option value="Oncology">Oncology</option>
+                            <option value="Gastroenterology">Gastroenterology</option>
+                            <option value="Nephrology">Nephrology</option>
+                            <option value="Pulmonology">Pulmonology</option>
+                        </select>
+                        {specializationFilter && (
+                            <span className="filter-badge">✓ Has {specializationFilter}</span>
+                        )}
+                    </div>
                 </div>
 
                 {/* Loading State */}
