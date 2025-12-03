@@ -21,6 +21,7 @@ model User {
   googleId  String?  @unique
   
   // Relations
+  hospitalId Int?  
   hospital  Hospital? // If user is a hospital manager
   bookings  Booking[] // If user is a patient
   ratings   Rating[]  // User ratings
