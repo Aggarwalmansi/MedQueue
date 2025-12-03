@@ -97,8 +97,8 @@ const calculateScore = (hospital, parsedQuery) => {
 
 exports.searchHospitals = async (req, res) => {
     try {
-        const { q, lat, lng, page = 1, limit = 10, sortBy } = req.query;
-        // if (!q) return res.json({ hospitals: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } });
+        const { q, lat, lng, page = 1, limit = 10 } = req.query;
+        if (!q) return res.json({ hospitals: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } });
 
         const pageNum = parseInt(page);
         const limitNum = parseInt(limit);
@@ -117,13 +117,8 @@ exports.searchHospitals = async (req, res) => {
         });
 
         // Filter and Score
-        let results = hospitals.map(h => {
-            let score = 0;
-            if (q) {
-                score = calculateScore(h, parsedQuery);
-            } else {
-                score = 1; // Default score if no query, to show all
-            }
+        const results = hospitals.map(h => {
+            const score = calculateScore(h, parsedQuery);
 
             // Calculate distance if location provided
             let distance = null;
@@ -141,27 +136,8 @@ exports.searchHospitals = async (req, res) => {
 
             return { ...h, searchScore: score, distance, averageRating };
         })
-            .filter(h => h.searchScore > 0);
-
-        // Sorting Logic
-        if (sortBy === 'trending') {
-            results.sort((a, b) => b.averageRating - a.averageRating);
-        } else if (sortBy === 'rating') {
-            results.sort((a, b) => b.averageRating - a.averageRating);
-        } else if (sortBy === 'distance' && lat && lng) {
-            results.sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
-        } else {
-            // Default sort by search score
-            results.sort((a, b) => b.searchScore - a.searchScore);
-        }
-
-        // Mark top 5 as trending if sorted by trending
-        if (sortBy === 'trending') {
-            results = results.map((h, index) => ({
-                ...h,
-                isTrending: index < 5 && h.averageRating >= 4.0 // Top 5 and rating >= 4.0
-            }));
-        }
+            .filter(h => h.searchScore > 0)
+            .sort((a, b) => b.searchScore - a.searchScore);
 
         // Paginate
         const totalResults = results.length;
