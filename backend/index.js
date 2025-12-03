@@ -19,7 +19,11 @@ const server = http.createServer(app);
 // Initialize Socket.io
 const io = new Server(server, {
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "https://med-queue.vercel.app",
+      process.env.FRONTEND_URL
+    ].filter(Boolean),
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true
   }
@@ -47,7 +51,11 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    "https://med-queue.vercel.app",
+    process.env.FRONTEND_URL
+  ].filter(Boolean),
   credentials: true, // Allow cookies to be sent across origins
 }));
 app.use(express.json());

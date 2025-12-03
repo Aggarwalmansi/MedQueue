@@ -40,7 +40,7 @@ export default function HospitalSearch() {
 
   // Socket.io connection for real-time updates
   useEffect(() => {
-    const socket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:3000");
+    const socket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:5001");
 
     socket.on('hospital_updated_public', (updatedHospital) => {
       setHospitals(prevHospitals => prevHospitals.map(h => {

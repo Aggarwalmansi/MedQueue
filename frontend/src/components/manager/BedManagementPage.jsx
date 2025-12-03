@@ -16,7 +16,7 @@ export default function BedManagementPage({ hospital, token }) {
   const fetchBeds = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`http://localhost:5001/api/beds/hospital/${hospital.id}`, {
+      const response = await fetch(`${apiUrl}/api/beds/hospital/${hospital.id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
