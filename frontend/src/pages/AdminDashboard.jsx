@@ -235,70 +235,68 @@ export default function AdminDashboard() {
                         </div>
                       </div>
                     </Card>
-                  ))}
-              </Card>
-              ))
-              ) : (
-              <div className="empty-state-message">
-                <p>No hospitals found.</p>
-              </div>
+                  ))
+                ) : (
+                  <div className="empty-state-message">
+                    <p>No hospitals found.</p>
+                  </div>
                 )}
-            </div>
+              </div>
             </div>
           )}
 
-      {activeTab === "verification" && (
-        <div className="verification-section animate-fade-in">
-          {pendingHospitals.length === 0 ? (
-            <Card className="empty-state">
-              <CheckCircle size={48} className="text-green-500 mb-4" />
-              <h3>All Caught Up!</h3>
-              <p>There are no pending hospital registrations to review.</p>
-            </Card>
-          ) : (
-            <div className="pending-list">
-              {pendingHospitals.map(hospital => (
-                <Card key={hospital.id} className="pending-card">
-                  <div className="hospital-info">
-                    <div className="hospital-header">
-                      <h3>{hospital.name}</h3>
-                      <Badge variant="warning">Pending</Badge>
-                    </div>
-                    <p className="hospital-address">{hospital.address}, {hospital.city}</p>
-
-                    <div className="manager-info">
-                      <strong>Manager:</strong> {hospital.manager?.fullName}
-                      <span className="email">({hospital.manager?.email})</span>
-                    </div>
-                  </div>
-
-                  <div className="action-buttons">
-                    <Button
-                      variant="secondary"
-                      className="reject-btn"
-                      onClick={() => handleVerification(hospital.id, false)}
-                      disabled={actionLoading === hospital.id}
-                      icon={XCircle}
-                    >
-                      Reject
-                    </Button>
-                    <Button
-                      className="approve-btn"
-                      onClick={() => handleVerification(hospital.id, true)}
-                      disabled={actionLoading === hospital.id}
-                      isLoading={actionLoading === hospital.id}
-                      icon={CheckCircle}
-                    >
-                      Approve
-                    </Button>
-                  </div>
+          {activeTab === "verification" && (
+            <div className="verification-section animate-fade-in">
+              {pendingHospitals.length === 0 ? (
+                <Card className="empty-state">
+                  <CheckCircle size={48} className="text-green-500 mb-4" />
+                  <h3>All Caught Up!</h3>
+                  <p>There are no pending hospital registrations to review.</p>
                 </Card>
-              ))}
+              ) : (
+                <div className="pending-list">
+                  {pendingHospitals.map(hospital => (
+                    <Card key={hospital.id} className="pending-card">
+                      <div className="hospital-info">
+                        <div className="hospital-header">
+                          <h3>{hospital.name}</h3>
+                          <Badge variant="warning">Pending</Badge>
+                        </div>
+                        <p className="hospital-address">{hospital.address}, {hospital.city}</p>
+
+                        <div className="manager-info">
+                          <strong>Manager:</strong> {hospital.manager?.fullName}
+                          <span className="email">({hospital.manager?.email})</span>
+                        </div>
+                      </div>
+
+                      <div className="action-buttons">
+                        <Button
+                          variant="secondary"
+                          className="reject-btn"
+                          onClick={() => handleVerification(hospital.id, false)}
+                          disabled={actionLoading === hospital.id}
+                          icon={XCircle}
+                        >
+                          Reject
+                        </Button>
+                        <Button
+                          className="approve-btn"
+                          onClick={() => handleVerification(hospital.id, true)}
+                          disabled={actionLoading === hospital.id}
+                          isLoading={actionLoading === hospital.id}
+                          icon={CheckCircle}
+                        >
+                          Approve
+                        </Button>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           )}
-        </div>
-      )}
-    </main>
+        </main>
       </div >
     </div >
   )
