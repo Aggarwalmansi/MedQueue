@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext"
 import Card from "../components/ui/Card"
 import Button from "../components/ui/Button"
 import Badge from "../components/ui/Badge"
-import { Shield, Activity, CheckCircle, XCircle, Users, Building, Map, RefreshCw, LogOut, MapPin } from "lucide-react"
+import { Shield, Activity, CheckCircle, XCircle, Users, Building, Map, RefreshCw, LogOut } from "lucide-react"
 import "../styles/AdminDashboard.css"
 
 export default function AdminDashboard() {
@@ -212,7 +212,7 @@ export default function AdminDashboard() {
                         <div className="info-main">
                           <h3>{hospital.name}</h3>
                           <div className="info-meta">
-                            <span className="meta-item"><MapPin size={14} /> {hospital.city}</span>
+                            <span className="meta-item"><Map size={14} /> {hospital.city}</span>
                             <span className="meta-item"><Users size={14} /> {hospital.manager?.fullName}</span>
                           </div>
                         </div>
