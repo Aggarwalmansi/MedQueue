@@ -226,23 +226,24 @@ exports.getSuggestions = async (req, res) => {
 };
 exports.getTrendingHospitals = async (req, res) => {
     try {
-        
+        // Fetch hospitals with ratings
         const hospitals = await prisma.hospital.findMany({
             where: { isVerified: true },
-            orderBy: { averageRating: 'desc' },
-            take: 10,
             include: {
                 manager: { select: { email: true, phone: true } },
                 ratings: true
             }
         });
 
-       
-        const shuffled = hospitals.sort(() => 0.5 - Math.random());
-        const trending = shuffled.slice(0, 5).map(h => ({
-            ...h,
-            isTrending: true
-        }));
+        // Calculate average rating and sort in memory
+        const trending = hospitals.map(h => {
+            const avgRating = h.ratings.length > 0
+                ? h.ratings.reduce((acc, r) => acc + r.value, 0) / h.ratings.length
+                : 0;
+            return { ...h, averageRating: avgRating, isTrending: true };
+        })
+            .sort((a, b) => b.averageRating - a.averageRating)
+            .slice(0, 5);
 
         res.json(trending);
     } catch (error) {
