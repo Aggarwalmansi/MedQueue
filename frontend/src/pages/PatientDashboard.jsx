@@ -7,7 +7,6 @@ import RatingModal from '../components/Patient/RatingModal';
 import VirtualQueueModal from '../components/Patient/VirtualQueueModal';
 import AppointmentModal from '../components/Patient/AppointmentModal';
 import AdvancedFiltersDrawer from '../components/Patient/AdvancedFiltersDrawer';
-import TrendingCarousel from '../components/Patient/TrendingCarousel';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Search, AlertCircle, Filter, ChevronDown, Map as MapIcon, List } from 'lucide-react';
@@ -306,18 +305,7 @@ const PatientDashboard = () => {
                     </div>
                 </div>
 
-                {/* Trending Carousel (Only when no search/filters) */}
-                {showDashboardWidgets && !loading && viewMode === 'list' && (
-                    <div className="dashboard-widgets animate-fade-in">
-                        <TrendingCarousel
-                            hospitals={trendingHospitals}
-                            onNotify={handleNotifyClick}
-                            onRate={handleRateClick}
-                            onJoinQueue={handleJoinQueueClick}
-                            onBookAppointment={handleBookAppointment}
-                        />
-                    </div>
-                )}
+
 
                 {/* Page Title */}
                 <div className="dashboard-title-section animate-fade-in">
