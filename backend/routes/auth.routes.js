@@ -71,30 +71,43 @@ router.post('/register', async (req, res) => {
 
 // Login
 router.post('/login', async (req, res) => {
+  console.log('[LOGIN] Login request received for email:', req.body.email);
   try {
     const { email, password } = req.body;
 
+    console.log('[LOGIN] Finding user in database...');
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
+      console.log('[LOGIN] User not found for email:', email);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
+    console.log('[LOGIN] User found:', user.id);
 
+    console.log('[LOGIN] Comparing passwords...');
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log('[LOGIN] Password mismatch for user:', user.id);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
+    console.log('[LOGIN] Password match successful');
 
+    console.log('[LOGIN] Generating access token...');
     const accessToken = generateAccessToken(user);
+    console.log('[LOGIN] Access token generated');
+
+    console.log('[LOGIN] Generating refresh token...');
     const refreshToken = await generateRefreshToken(user);
+    console.log('[LOGIN] Refresh token generated');
 
     res.json({
       token: accessToken,
       refreshToken,
       user: { id: user.id, email: user.email, role: user.role, fullName: user.fullName }
     });
+    console.log('[LOGIN] Login response sent successfully');
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('[LOGIN] Error during login:', error);
+    res.status(500).json({ message: 'Server error', error: error.message, stack: error.stack });
   }
 });
 

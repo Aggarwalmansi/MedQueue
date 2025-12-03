@@ -44,7 +44,7 @@ io.on('connection', (socket) => {
   });
 });
 
-// Middleware to make io available in routes
+
 app.use((req, res, next) => {
   req.io = io;
   next();
@@ -56,7 +56,7 @@ app.use(cors({
     "https://med-queue.vercel.app",
     process.env.FRONTEND_URL
   ].filter(Boolean),
-  credentials: true, // Allow cookies to be sent across origins
+  credentials: true, 
 }));
 app.use(express.json());
 
@@ -75,7 +75,7 @@ app.use(passport.session());
 app.use("/api/auth", authRoutes);
 app.use("/api/patient", require('./routes/patient.routes')); // Public routes: /hospitals, /bookings
 app.use("/api/admin", require('./routes/admin.routes'));
-// Hospital routes (Auth handled internally or bypassed for test)
+
 app.use("/api/hospital", authMiddleware, hospitalRoutes);
 app.use("/api/search", require('./routes/search.routes'));
 
