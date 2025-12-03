@@ -3,16 +3,14 @@ import { useAuth } from "../context/AuthContext"
 import Card from "../components/ui/Card"
 import Button from "../components/ui/Button"
 import Badge from "../components/ui/Badge"
-import { Shield, Activity, CheckCircle, XCircle, Users, Building, Map, RefreshCw, LogOut } from "lucide-react"
+import { Shield, Activity, CheckCircle, XCircle, Users, Building, Map, RefreshCw, LogOut, MapPin } from "lucide-react"
 import "../styles/AdminDashboard.css"
 
 export default function AdminDashboard() {
   const { token, logout } = useAuth()
   const [activeTab, setActiveTab] = useState("overview")
   const [stats, setStats] = useState(null)
-  const [pendingHospitals, setPendingHospitals] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [actionLoading, setActionLoading] = useState(null)
+  const [allHospitals, setAllHospitals] = useState([])
 
   useEffect(() => {
     fetchDashboardData()
@@ -23,11 +21,14 @@ export default function AdminDashboard() {
       setLoading(true)
       const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
 
-      const [statsRes, pendingRes] = await Promise.all([
+      const [statsRes, pendingRes, allRes] = await Promise.all([
         fetch(`${apiUrl}/api/admin/stats`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
         fetch(`${apiUrl}/api/admin/hospitals/pending`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch(`${apiUrl}/api/admin/hospitals/all`, {
           headers: { Authorization: `Bearer ${token}` },
         }),
       ])
@@ -37,6 +38,9 @@ export default function AdminDashboard() {
       }
       if (pendingRes.ok) {
         setPendingHospitals(await pendingRes.json())
+      }
+      if (allRes.ok) {
+        setAllHospitals(await allRes.json())
       }
     } catch (error) {
       console.error("Error fetching admin data:", error)
@@ -62,6 +66,10 @@ export default function AdminDashboard() {
       if (response.ok) {
         // Remove from pending list
         setPendingHospitals(prev => prev.filter(h => h.id !== hospitalId))
+        // Update all hospitals list
+        setAllHospitals(prev => prev.map(h =>
+          h.id === hospitalId ? { ...h, isVerified } : h
+        ))
         // Refresh stats
         fetchDashboardData()
       }
@@ -100,6 +108,12 @@ export default function AdminDashboard() {
                 <Activity size={18} /> Overview
               </button>
               <button
+                className={`nav-item ${activeTab === "hospitals" ? "active" : ""}`}
+                onClick={() => setActiveTab("hospitals")}
+              >
+                <Building size={18} /> Hospitals
+              </button>
+              <button
                 className={`nav-item ${activeTab === "verification" ? "active" : ""}`}
                 onClick={() => setActiveTab("verification")}
               >
@@ -124,12 +138,15 @@ export default function AdminDashboard() {
           <div className="content-header">
             <div>
               <h1 className="page-title">
-                {activeTab === "overview" ? "System Overview" : "Pending Approvals"}
+                {activeTab === "overview" ? "System Overview" :
+                  activeTab === "hospitals" ? "Hospital Management" : "Pending Approvals"}
               </h1>
               <p className="page-subtitle">
                 {activeTab === "overview"
                   ? "Monitor system health and hospital statistics"
-                  : "Verify and approve new hospital registrations"}
+                  : activeTab === "hospitals"
+                    ? "Manage all registered hospitals and their status"
+                    : "Verify and approve new hospital registrations"}
               </p>
             </div>
             <Button variant="secondary" size="sm" onClick={fetchDashboardData} icon={RefreshCw}>
@@ -181,6 +198,43 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               </Card>
+            </div>
+          )}
+
+          {activeTab === "hospitals" && (
+            <div className="hospitals-section animate-fade-in">
+              <div className="hospitals-list">
+                {allHospitals.map(hospital => (
+                  <Card key={hospital.id} className="hospital-row-card">
+                    <div className="hospital-info-row">
+                      <div className="info-main">
+                        <h3>{hospital.name}</h3>
+                        <div className="info-meta">
+                          <span className="meta-item"><MapPin size={14} /> {hospital.city}</span>
+                          <span className="meta-item"><Users size={14} /> {hospital.manager?.fullName}</span>
+                        </div>
+                      </div>
+
+                      <div className="status-actions">
+                        <Badge variant={hospital.isVerified ? "success" : "warning"}>
+                          {hospital.isVerified ? "Active" : "Inactive/Pending"}
+                        </Badge>
+
+                        <Button
+                          variant={hospital.isVerified ? "outline" : "primary"}
+                          size="sm"
+                          className={hospital.isVerified ? "deactivate-btn" : "activate-btn"}
+                          onClick={() => handleVerification(hospital.id, !hospital.isVerified)}
+                          disabled={actionLoading === hospital.id}
+                          isLoading={actionLoading === hospital.id}
+                        >
+                          {hospital.isVerified ? "Deactivate" : "Activate"}
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
             </div>
           )}
 

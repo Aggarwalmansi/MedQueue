@@ -68,6 +68,20 @@ router.get('/hospitals/pending', async (req, res) => {
     }
 });
 
+// GET /api/admin/hospitals/all
+router.get('/hospitals/all', async (req, res) => {
+    try {
+        const hospitals = await prisma.hospital.findMany({
+            include: { manager: { select: { fullName: true, email: true, phone: true } } },
+            orderBy: { createdAt: 'desc' }
+        });
+        res.json(hospitals);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
 // PATCH /api/admin/hospitals/:id/verify
 router.patch('/hospitals/:id/verify', async (req, res) => {
     try {
