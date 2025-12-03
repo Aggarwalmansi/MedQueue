@@ -10,7 +10,10 @@ export default function AdminDashboard() {
   const { token, logout } = useAuth()
   const [activeTab, setActiveTab] = useState("overview")
   const [stats, setStats] = useState(null)
+  const [pendingHospitals, setPendingHospitals] = useState([])
   const [allHospitals, setAllHospitals] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState(null)
 
   useEffect(() => {
     fetchDashboardData()
