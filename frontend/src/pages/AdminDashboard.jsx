@@ -44,6 +44,7 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error("Error fetching admin data:", error)
+      setAllHospitals([])
     } finally {
       setLoading(false)
     }
@@ -204,94 +205,102 @@ export default function AdminDashboard() {
           {activeTab === "hospitals" && (
             <div className="hospitals-section animate-fade-in">
               <div className="hospitals-list">
-                {allHospitals.map(hospital => (
-                  <Card key={hospital.id} className="hospital-row-card">
-                    <div className="hospital-info-row">
-                      <div className="info-main">
-                        <h3>{hospital.name}</h3>
-                        <div className="info-meta">
-                          <span className="meta-item"><MapPin size={14} /> {hospital.city}</span>
-                          <span className="meta-item"><Users size={14} /> {hospital.manager?.fullName}</span>
-                        </div>
-                      </div>
-
-                      <div className="status-actions">
-                        <Badge variant={hospital.isVerified ? "success" : "warning"}>
-                          {hospital.isVerified ? "Active" : "Inactive/Pending"}
-                        </Badge>
-
-                        <Button
-                          variant={hospital.isVerified ? "outline" : "primary"}
-                          size="sm"
-                          className={hospital.isVerified ? "deactivate-btn" : "activate-btn"}
-                          onClick={() => handleVerification(hospital.id, !hospital.isVerified)}
-                          disabled={actionLoading === hospital.id}
-                          isLoading={actionLoading === hospital.id}
-                        >
-                          {hospital.isVerified ? "Deactivate" : "Activate"}
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === "verification" && (
-            <div className="verification-section animate-fade-in">
-              {pendingHospitals.length === 0 ? (
-                <Card className="empty-state">
-                  <CheckCircle size={48} className="text-green-500 mb-4" />
-                  <h3>All Caught Up!</h3>
-                  <p>There are no pending hospital registrations to review.</p>
-                </Card>
-              ) : (
-                <div className="pending-list">
-                  {pendingHospitals.map(hospital => (
-                    <Card key={hospital.id} className="pending-card">
-                      <div className="hospital-info">
-                        <div className="hospital-header">
+                {Array.isArray(allHospitals) && allHospitals.length > 0 ? (
+                  allHospitals.map(hospital => (
+                    <Card key={hospital.id} className="hospital-row-card">
+                      <div className="hospital-info-row">
+                        <div className="info-main">
                           <h3>{hospital.name}</h3>
-                          <Badge variant="warning">Pending</Badge>
+                          <div className="info-meta">
+                            <span className="meta-item"><MapPin size={14} /> {hospital.city}</span>
+                            <span className="meta-item"><Users size={14} /> {hospital.manager?.fullName}</span>
+                          </div>
                         </div>
-                        <p className="hospital-address">{hospital.address}, {hospital.city}</p>
 
-                        <div className="manager-info">
-                          <strong>Manager:</strong> {hospital.manager?.fullName}
-                          <span className="email">({hospital.manager?.email})</span>
+                        <div className="status-actions">
+                          <Badge variant={hospital.isVerified ? "success" : "warning"}>
+                            {hospital.isVerified ? "Active" : "Inactive/Pending"}
+                          </Badge>
+
+                          <Button
+                            variant={hospital.isVerified ? "outline" : "primary"}
+                            size="sm"
+                            className={hospital.isVerified ? "deactivate-btn" : "activate-btn"}
+                            onClick={() => handleVerification(hospital.id, !hospital.isVerified)}
+                            disabled={actionLoading === hospital.id}
+                            isLoading={actionLoading === hospital.id}
+                          >
+                            {hospital.isVerified ? "Deactivate" : "Activate"}
+                          </Button>
                         </div>
-                      </div>
-
-                      <div className="action-buttons">
-                        <Button
-                          variant="secondary"
-                          className="reject-btn"
-                          onClick={() => handleVerification(hospital.id, false)}
-                          disabled={actionLoading === hospital.id}
-                          icon={XCircle}
-                        >
-                          Reject
-                        </Button>
-                        <Button
-                          className="approve-btn"
-                          onClick={() => handleVerification(hospital.id, true)}
-                          disabled={actionLoading === hospital.id}
-                          isLoading={actionLoading === hospital.id}
-                          icon={CheckCircle}
-                        >
-                          Approve
-                        </Button>
                       </div>
                     </Card>
                   ))}
-                </div>
-              )}
+              </Card>
+              ))
+              ) : (
+              <div className="empty-state-message">
+                <p>No hospitals found.</p>
+              </div>
+                )}
+            </div>
             </div>
           )}
-        </main>
-      </div>
-    </div>
+
+      {activeTab === "verification" && (
+        <div className="verification-section animate-fade-in">
+          {pendingHospitals.length === 0 ? (
+            <Card className="empty-state">
+              <CheckCircle size={48} className="text-green-500 mb-4" />
+              <h3>All Caught Up!</h3>
+              <p>There are no pending hospital registrations to review.</p>
+            </Card>
+          ) : (
+            <div className="pending-list">
+              {pendingHospitals.map(hospital => (
+                <Card key={hospital.id} className="pending-card">
+                  <div className="hospital-info">
+                    <div className="hospital-header">
+                      <h3>{hospital.name}</h3>
+                      <Badge variant="warning">Pending</Badge>
+                    </div>
+                    <p className="hospital-address">{hospital.address}, {hospital.city}</p>
+
+                    <div className="manager-info">
+                      <strong>Manager:</strong> {hospital.manager?.fullName}
+                      <span className="email">({hospital.manager?.email})</span>
+                    </div>
+                  </div>
+
+                  <div className="action-buttons">
+                    <Button
+                      variant="secondary"
+                      className="reject-btn"
+                      onClick={() => handleVerification(hospital.id, false)}
+                      disabled={actionLoading === hospital.id}
+                      icon={XCircle}
+                    >
+                      Reject
+                    </Button>
+                    <Button
+                      className="approve-btn"
+                      onClick={() => handleVerification(hospital.id, true)}
+                      disabled={actionLoading === hospital.id}
+                      isLoading={actionLoading === hospital.id}
+                      icon={CheckCircle}
+                    >
+                      Approve
+                    </Button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </main>
+      </div >
+    </div >
   )
 }
 
