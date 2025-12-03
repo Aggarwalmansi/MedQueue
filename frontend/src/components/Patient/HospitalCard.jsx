@@ -120,7 +120,7 @@ const HospitalCard = ({ hospital, onNotify, onRate, onJoinQueue, onBookAppointme
                         <div className="status-badge top-rated">Top Rated</div>
                     )}
                     {isTrending && !isTopRated && (
-                        <div className="status-badge trending">Trending</div>
+                        <div className="status-badge trending">TRENDING</div>
                     )}
                     {hospital.insuranceAccepted && hospital.insuranceAccepted.includes('Ayushman Bharat') && (
                         <div className="status-badge insurance-badge ayushman">

@@ -7,7 +7,7 @@ import RatingModal from '../components/Patient/RatingModal';
 import VirtualQueueModal from '../components/Patient/VirtualQueueModal';
 import AppointmentModal from '../components/Patient/AppointmentModal';
 import AdvancedFiltersDrawer from '../components/Patient/AdvancedFiltersDrawer';
-import TrendingCarousel from '../components/Patient/TrendingCarousel';
+import AdvancedFiltersDrawer from '../components/Patient/AdvancedFiltersDrawer';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { Search, AlertCircle, Filter, ChevronDown, Map as MapIcon, List } from 'lucide-react';
@@ -21,7 +21,6 @@ const PatientDashboard = () => {
     const urlQuery = searchParams.get('q');
     const [location, setLocation] = useState(null);
     const [hospitals, setHospitals] = useState([]);
-    const [trendingHospitals, setTrendingHospitals] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [viewMode, setViewMode] = useState('list'); // 'list' or 'map'
@@ -83,8 +82,7 @@ const PatientDashboard = () => {
             fetchHospitals();
         }
 
-        // Fetch Trending
-        fetchTrendingHospitals();
+
 
         // 2. Socket.IO Connection for Real-time Updates
         const socket = io(import.meta.env.VITE_BACKEND_URL || "http://localhost:5001");
@@ -124,17 +122,7 @@ const PatientDashboard = () => {
         }
     }, [searchParams, advancedFilters, sortBy, page]);
 
-    const fetchTrendingHospitals = async () => {
-        try {
-            const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
 
-            const trendingRes = await fetch(`${apiUrl}/api/search/trending`);
-            if (trendingRes.ok) setTrendingHospitals(await trendingRes.json());
-
-        } catch (err) {
-            console.error("Failed to fetch trending:", err);
-        }
-    };
 
     const fetchHospitals = async (lat, lng, pageNum = 1) => {
         try {
@@ -285,6 +273,7 @@ const PatientDashboard = () => {
                                 className="sort-select"
                             >
                                 <option value="distance">Nearest</option>
+                                <option value="trending">Trending</option>
                                 <option value="rating">Top Rated</option>
                                 <option value="availability">Most Available Beds</option>
                                 <option value="name">Name (A-Z)</option>
@@ -307,18 +296,7 @@ const PatientDashboard = () => {
                     </div>
                 </div>
 
-                {/* Trending Carousel (Only when no search/filters) */}
-                {showDashboardWidgets && !loading && viewMode === 'list' && (
-                    <div className="dashboard-widgets animate-fade-in">
-                        <TrendingCarousel
-                            hospitals={trendingHospitals}
-                            onNotify={handleNotifyClick}
-                            onRate={handleRateClick}
-                            onJoinQueue={handleJoinQueueClick}
-                            onBookAppointment={handleBookAppointment}
-                        />
-                    </div>
-                )}
+
 
                 {/* Page Title */}
                 <div className="dashboard-title-section animate-fade-in">
