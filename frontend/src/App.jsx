@@ -15,6 +15,7 @@ import BookingForm from "./pages/BookingForm"
 
 import PatientDashboard from "./pages/PatientDashboard"
 import HospitalDetailPage from "./pages/HospitalDetailPage"
+import HospitalDetailsPage from "./pages/HospitalDetailsPage"
 import Footer from "./components/Footer";
 import FAQ from "./pages/FAQ";
 import Contact from "./pages/Contact";
@@ -28,6 +29,7 @@ import Pricing from "./pages/Pricing";
 import Resources from "./pages/Resources";
 import Blog from "./pages/Blog";
 import DataSecurity from "./pages/DataSecurity";
+import MedicalRecords from "./pages/MedicalRecords";
 
 import ScrollToTop from "./components/ScrollToTop";
 import EmergencyButton from "./components/EmergencyAssessment/EmergencyButton";
@@ -73,10 +75,28 @@ function App() {
               />
 
               <Route
+                path="/hospital/:id/details"
+                element={
+                  <>
+                    <HospitalDetailsPage />
+                  </>
+                }
+              />
+
+              <Route
                 path="/my-bookings"
                 element={
                   <ProtectedRoute allowedRoles={['PATIENT', 'admin']}>
                     <MyBookings />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/medical-records"
+                element={
+                  <ProtectedRoute allowedRoles={['PATIENT', 'admin']}>
+                    <MedicalRecords />
                   </ProtectedRoute>
                 }
               />

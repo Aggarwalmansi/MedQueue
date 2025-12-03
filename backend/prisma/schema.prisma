@@ -108,11 +108,21 @@ model Booking {
   // Status Flow
   status      Status   @default(INCOMING)
   
+  // New Fields for Unified Bookings
+  source          BookingSource @default(TRIAGE)
+  appointmentTime DateTime?
+  
   // Relations
   userId      Int?     // Made optional for guest bookings
   user        User?    @relation(fields: [userId], references: [id])
   hospitalId  Int
   hospital    Hospital @relation(fields: [hospitalId], references: [id])
+}
+
+enum BookingSource {
+  TRIAGE
+  CALENDAR
+  WALK_IN
 }
 
 // 4. Ratings: User feedback for hospitals
@@ -138,10 +148,13 @@ enum Role {
 }
 
 enum Status {
-  INCOMING  // Patient is on the way
+  INCOMING  // Patient is on the way (Triage)
   ADMITTED  // Patient arrived and accepted
   DIVERTED  // Hospital sent patient elsewhere
   CANCELLED // Patient cancelled
+  SCHEDULED // Future appointment (Calendar)
+  COMPLETED // Appointment finished
+  NO_SHOW   // Patient didn't show up
 }
 
 enum Severity {

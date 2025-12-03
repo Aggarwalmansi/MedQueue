@@ -16,7 +16,7 @@ const generateAccessToken = (user) => {
   );
 };
 
-// Generate Refresh Token (Long Lived: 7d)
+//  Refresh Token (Long Lived: 7d)
 const generateRefreshToken = async (user, ipAddress) => {
   // Create a random token string
   const token = crypto.randomBytes(40).toString('hex');

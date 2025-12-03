@@ -65,7 +65,7 @@ app.use(passport.session());
 
 // Routes
 app.use("/api/auth", authRoutes);
-app.use("/api", require('./routes/patient.routes')); // Public routes: /hospitals, /bookings
+app.use("/api/patient", require('./routes/patient.routes')); // Public routes: /hospitals, /bookings
 app.use("/api/admin", require('./routes/admin.routes'));
 // Hospital routes (Auth handled internally or bypassed for test)
 app.use("/api/hospital", authMiddleware, hospitalRoutes);

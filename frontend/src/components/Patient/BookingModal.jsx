@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Loader2, Send } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import '../../styles/BookingModal.css';
 
 const BookingModal = ({ isOpen, onClose, hospital }) => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [formData, setFormData] = useState({
         patientName: '',
         patientPhone: '',
@@ -31,13 +33,14 @@ const BookingModal = ({ isOpen, onClose, hospital }) => {
 
         try {
             const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-            const response = await fetch(`${apiUrl}/api/bookings`, {
+            const response = await fetch(`${apiUrl}/api/patient/bookings`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     hospitalId: hospital.id,
+                    userId: user?.id || null,
                     ...formData
                 })
             });
@@ -131,9 +134,9 @@ const BookingModal = ({ isOpen, onClose, hospital }) => {
                             value={formData.severity}
                             onChange={handleChange}
                         >
-                            <option value="Mild">LOW</option>
-                            <option value="Moderate">MODERATE</option>
-                            <option value="Critical">CRITICAL</option>
+                            <option value="LOW">LOW</option>
+                            <option value="MODERATE">MODERATE</option>
+                            <option value="CRITICAL">CRITICAL</option>
                         </select>
                     </div>
                 </div>

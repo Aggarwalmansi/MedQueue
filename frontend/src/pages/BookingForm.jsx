@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { ArrowLeft, Hospital } from 'lucide-react';
@@ -7,6 +8,7 @@ import { ArrowLeft, Hospital } from 'lucide-react';
 const BookingForm = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user } = useAuth();
     const { hospital } = location.state || {};
 
     const [formData, setFormData] = useState({
@@ -37,13 +39,14 @@ const BookingForm = () => {
 
         try {
             const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-            const response = await fetch(`${apiUrl}/api/bookings`, {
+            const response = await fetch(`${apiUrl}/api/patient/bookings`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     hospitalId: hospital.id,
+                    userId: user?.id || null,
                     ...formData
                 })
             });

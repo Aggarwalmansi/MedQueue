@@ -1,0 +1,212 @@
+/* MedicalRecords.css */
+.medical-records-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f0fdfa 0%, #ffffff 100%);
+    padding: 40px 0;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+
+.page-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.upload-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.records-layout {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px;
+}
+
+.records-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tab-btn {
+    padding: 12px 16px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 500;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background-color: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.tab-btn.active {
+    background-color: #0d9488;
+    color: white;
+    border-color: #0d9488;
+}
+
+.records-content {
+    min-height: 400px;
+}
+
+.empty-records {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.empty-icon {
+    color: #d1d5db;
+    margin-bottom: 16px;
+}
+
+.empty-records h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 8px 0;
+}
+
+.empty-records p {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.records-grid {
+    display: grid;
+    gap: 16px;
+}
+
+.record-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    transition: all 0.2s;
+}
+
+.record-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transform: translateY(-2px);
+}
+
+.record-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f0fdfa 0%, #e0f2f1 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0d9488;
+}
+
+.record-info {
+    flex: 1;
+}
+
+.record-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+
+.record-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.meta-dot {
+    color: #d1d5db;
+}
+
+.record-doctor {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.record-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.icon-btn:hover {
+    background-color: #f9fafb;
+    color: #0d9488;
+    border-color: #0d9488;
+}
+
+@media (max-width: 768px) {
+    .records-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .records-sidebar {
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .tab-btn {
+        white-space: nowrap;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+}

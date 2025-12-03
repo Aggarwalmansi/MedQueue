@@ -24,7 +24,7 @@ export default function HospitalProfilePage({ hospital, setHospital, token }) {
     try {
       setLoading(true)
       const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
-      const response = await fetch(`${apiUrl}/api/hospitals/${hospital.id}`, {
+      const response = await fetch(`${apiUrl}/api/patient/hospitals/${hospital.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

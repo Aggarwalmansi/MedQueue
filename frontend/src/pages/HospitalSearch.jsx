@@ -126,7 +126,7 @@ export default function HospitalSearch() {
   const handleBookingSubmit = async (formData) => {
     try {
       const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-      const response = await fetch(`${apiUrl}/api/bookings`, {
+      const response = await fetch(`${apiUrl}/api/patient/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -225,7 +225,11 @@ export default function HospitalSearch() {
           {error && <div className="error-message">{error}</div>}
 
           {loading ? (
-            <div className="loading">Searching hospitals...</div>
+            <div className="hospitals-grid">
+              {[1, 2, 3].map((i) => (
+                <HospitalCard key={i} loading={true} />
+              ))}
+            </div>
           ) : hospitals.length === 0 ? (
             <div className="no-results">No hospitals found in this radius with available beds</div>
           ) : (

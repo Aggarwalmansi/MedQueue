@@ -1,0 +1,103 @@
+/* TrendingCarousel.css */
+.trending-section {
+    margin-bottom: 32px;
+}
+
+.trending-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.trending-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.trending-title h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.trending-icon {
+    color: #f59e0b;
+    fill: #f59e0b;
+    animation: pulse-flame 2s infinite;
+}
+
+@keyframes pulse-flame {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.carousel-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.control-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #e5e7eb;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #4b5563;
+    transition: all 0.2s;
+}
+
+.control-btn:hover {
+    background-color: #f3f4f6;
+    color: #111827;
+    border-color: #d1d5db;
+}
+
+.carousel-container {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding: 4px 4px 20px 4px;
+    /* Bottom padding for shadow */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Firefox */
+}
+
+.carousel-container::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
+}
+
+.carousel-item {
+    min-width: 340px;
+    max-width: 340px;
+    flex: 0 0 auto;
+}
+
+@media (max-width: 640px) {
+    .carousel-item {
+        min-width: 300px;
+        max-width: 300px;
+    }
+}

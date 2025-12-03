@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, Plus, Minus, Save } from 'lucide-react';
+import { Clock, Plus, Minus, Save, Trash2 } from 'lucide-react';
 import '../../styles/ERManagementPanel.css';
 
 const ERManagementPanel = ({ hospital, token }) => {
@@ -22,7 +22,7 @@ const ERManagementPanel = ({ hospital, token }) => {
     const fetchWaitTimes = async () => {
         try {
             const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-            const response = await fetch(`${apiUrl}/api/hospitals/${hospital.id}/er-wait-times`);
+            const response = await fetch(`${apiUrl}/api/patient/hospitals/${hospital.id}/er-wait-times`);
             if (response.ok) {
                 const data = await response.json();
                 if (data.critical) {
@@ -70,6 +70,27 @@ const ERManagementPanel = ({ hospital, token }) => {
             alert('Failed to update wait times');
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleRemoveFromQueue = async (entryId) => {
+        if (!window.confirm('Are you sure you want to remove this patient from the queue?')) return;
+
+        try {
+            const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
+            const response = await fetch(`${apiUrl}/api/hospital/virtual-queue/${entryId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                setQueue(prev => prev.filter(entry => entry.id !== entryId));
+            } else {
+                alert('Failed to remove entry');
+            }
+        } catch (error) {
+            console.error('Error removing entry:', error);
+            alert('Error removing entry');
         }
     };
 
@@ -230,6 +251,21 @@ const ERManagementPanel = ({ hospital, token }) => {
                                 <span className="queue-time">
                                     {new Date(entry.checkInTime).toLocaleTimeString()}
                                 </span>
+                                <button
+                                    onClick={() => handleRemoveFromQueue(entry.id)}
+                                    className="remove-btn"
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        color: '#ef4444',
+                                        marginLeft: 'auto',
+                                        padding: '4px'
+                                    }}
+                                    title="Remove from queue"
+                                >
+                                    <Trash2 size={16} />
+                                </button>
                             </div>
                         ))}
                     </div>

@@ -1,5 +1,6 @@
 "use client"
 import React from "react"
+import { Link } from "react-router-dom"
 import { useState, useEffect } from "react"
 import { useAuth } from "../context/AuthContext"
 import Header from "../components/Header"
@@ -65,7 +66,13 @@ export default function ManagerDashboard() {
           {/* Sidebar Navigation */}
           <nav className="manager-sidebar">
             <div className="sidebar-header">
-              <h3>{hospital?.name || "Hospital Manager"}</h3>
+              {hospital?.id ? (
+                <Link to={`/hospital/${hospital.id}/details`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  <h3>{hospital?.name || "Hospital Manager"}</h3>
+                </Link>
+              ) : (
+                <h3>{hospital?.name || "Hospital Manager"}</h3>
+              )}
             </div>
             <ul className="nav-items">
               <li>
@@ -97,7 +104,7 @@ export default function ManagerDashboard() {
                   className={`nav-link ${currentPage === "bookings" ? "active" : ""}`}
                   onClick={() => setCurrentPage("bookings")}
                 >
-                  All Bookings
+                  All Appointments & Bookings
                 </button>
               </li>
               <li>

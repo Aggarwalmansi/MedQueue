@@ -1,8 +1,10 @@
 import React from 'react';
 import { Navigation, MapPin, Clock, User, Activity, AlertCircle } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import '../../styles/TicketView.css';
 
 const TicketView = ({ booking, hospital }) => {
+    const { token } = useAuth();
     const { id, patientName, condition, createdAt, status, severity } = booking || {};
     const { name, address, latitude, longitude } = hospital || {};
 
@@ -10,6 +12,30 @@ const TicketView = ({ booking, hospital }) => {
         if (!latitude || !longitude) return;
         const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`;
         window.open(url, '_blank');
+    };
+
+    const handleCancel = async () => {
+        if (!window.confirm('Are you sure you want to cancel this booking?')) return;
+
+        try {
+            const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
+            const response = await fetch(`${apiUrl}/api/patient/bookings/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                alert('Booking cancelled successfully');
+                window.location.reload(); // Refresh to show updated status
+            } else {
+                alert('Failed to cancel booking');
+            }
+        } catch (error) {
+            console.error('Error cancelling booking:', error);
+            alert('Error cancelling booking');
+        }
     };
 
     // Generate QR Code URL
@@ -67,10 +93,34 @@ const TicketView = ({ booking, hospital }) => {
                 </div>
 
                 {/* Action Button */}
-                <button className="navigate-btn" onClick={handleNavigate}>
-                    <Navigation size={18} />
-                    Navigate to Hospital
-                </button>
+                <div className="action-buttons-row" style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                    <button className="navigate-btn" onClick={handleNavigate} style={{ flex: 1 }}>
+                        <Navigation size={18} />
+                        Navigate
+                    </button>
+                    {status !== 'CANCELLED' && status !== 'COMPLETED' && (
+                        <button
+                            className="cancel-btn"
+                            onClick={handleCancel}
+                            style={{
+                                flex: 1,
+                                backgroundColor: '#fee2e2',
+                                color: '#dc2626',
+                                border: 'none',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '0.5rem',
+                                fontWeight: '600'
+                            }}
+                        >
+                            <AlertCircle size={18} />
+                            Cancel
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Booking ID Footer */}

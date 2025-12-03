@@ -1,23 +1,29 @@
 "use client"
-import React from "react"
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import "../../styles/BookingManagement.css";
 
-
 export default function BookingManagement({ hospital, token }) {
-  const [activeTab, setActiveTab] = useState("PENDING")
+  const [activeTab, setActiveTab] = useState("ALL") // Status filter
+  const [sourceFilter, setSourceFilter] = useState("ALL") // Source filter
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     fetchBookings()
-  }, [activeTab, hospital])
+  }, [activeTab, sourceFilter, hospital])
 
   const fetchBookings = async () => {
     try {
       setLoading(true)
       const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
-      const response = await fetch(`${apiUrl}/api/bookings/hospital/${hospital.id}/status/${activeTab}`, {
+
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (activeTab !== 'ALL') params.append('status', activeTab);
+      if (sourceFilter !== 'ALL') params.append('source', sourceFilter);
+      params.append('hId', hospital.id);
+
+      const response = await fetch(`${apiUrl}/api/hospital/bookings?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       if (response.ok) {
@@ -31,49 +37,55 @@ export default function BookingManagement({ hospital, token }) {
     }
   }
 
-  const handleApprove = async (bookingId) => {
+  const handleStatusUpdate = async (bookingId, newStatus) => {
     try {
       const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
-      const response = await fetch(`${apiUrl}/api/bookings/${bookingId}/approve`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
+      const response = await fetch(`${apiUrl}/api/hospital/bookings/${bookingId}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
       })
       if (response.ok) {
         fetchBookings()
       }
     } catch (error) {
-      console.error("Error approving booking:", error)
-    }
-  }
-
-  const handleReject = async (bookingId) => {
-    try {
-      const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001"
-      const response = await fetch(`${apiUrl}/api/bookings/${bookingId}/reject`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      if (response.ok) {
-        fetchBookings()
-      }
-    } catch (error) {
-      console.error("Error rejecting booking:", error)
+      console.error("Error updating booking status:", error)
     }
   }
 
   return (
     <div className="booking-management">
       <div className="booking-header">
-        <h1>Booking Management</h1>
+        <h1>All Appointments & Bookings</h1>
+        <p className="helper-text">Shows every appointment created from triage, calendar, and other channels in one unified list.</p>
       </div>
 
-      {/* Tabs */}
-      <div className="booking-tabs">
-        {["PENDING", "CONFIRMED", "REJECTED"].map((tab) => (
-          <button key={tab} className={`tab ${activeTab === tab ? "active" : ""}`} onClick={() => setActiveTab(tab)}>
-            {tab.charAt(0) + tab.slice(1).toLowerCase()}
-          </button>
-        ))}
+      {/* Filters */}
+      <div className="filters-container">
+        <div className="filter-group">
+          <label>Source:</label>
+          <div className="booking-tabs">
+            {["ALL", "TRIAGE", "CALENDAR"].map((source) => (
+              <button key={source} className={`tab ${sourceFilter === source ? "active" : ""}`} onClick={() => setSourceFilter(source)}>
+                {source.charAt(0) + source.slice(1).toLowerCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="filter-group">
+          <label>Status:</label>
+          <div className="booking-tabs">
+            {["ALL", "INCOMING", "ADMITTED", "SCHEDULED", "COMPLETED", "CANCELLED"].map((status) => (
+              <button key={status} className={`tab ${activeTab === status ? "active" : ""}`} onClick={() => setActiveTab(status)}>
+                {status.charAt(0) + status.slice(1).toLowerCase()}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Bookings List */}
@@ -81,25 +93,53 @@ export default function BookingManagement({ hospital, token }) {
         {loading ? (
           <p className="loading">Loading...</p>
         ) : bookings.length === 0 ? (
-          <p className="empty-state">No {activeTab.toLowerCase()} bookings</p>
+          <p className="empty-state">No bookings found matching filters</p>
         ) : (
           bookings.map((booking) => (
             <div key={booking.id} className="booking-item">
               <div className="booking-info">
-                <h3 className="user-name">Request from {booking.user.email}</h3>
-                <p className="bed-type">{booking.bedType} Bed</p>
-                <p className="time-ago">Submitted {getTimeAgo(booking.createdAt)}</p>
-              </div>
-              {activeTab === "PENDING" && (
-                <div className="booking-actions">
-                  <button className="btn-approve" onClick={() => handleApprove(booking.id)}>
-                    Approve
-                  </button>
-                  <button className="btn-reject" onClick={() => handleReject(booking.id)}>
-                    Reject
-                  </button>
+                <div className="booking-meta-top">
+                  <span className={`badge source-${booking.source?.toLowerCase() || 'triage'}`}>
+                    {booking.source || 'TRIAGE'}
+                  </span>
+                  <span className={`badge status-${booking.status?.toLowerCase()}`}>
+                    {booking.status}
+                  </span>
                 </div>
-              )}
+                <h3 className="user-name">{booking.patientName}</h3>
+                <p className="condition-text">Condition: {booking.condition}</p>
+                <div className="booking-details">
+                  {booking.appointmentTime && (
+                    <p className="appointment-time">
+                      📅 {new Date(booking.appointmentTime).toLocaleString()}
+                    </p>
+                  )}
+                  <p className="time-ago">Created {getTimeAgo(booking.createdAt)}</p>
+                </div>
+              </div>
+
+              <div className="booking-actions">
+                {booking.status === 'INCOMING' && (
+                  <>
+                    <button className="btn-approve" onClick={() => handleStatusUpdate(booking.id, 'ADMITTED')}>
+                      Admit
+                    </button>
+                    <button className="btn-reject" onClick={() => handleStatusUpdate(booking.id, 'DIVERTED')}>
+                      Divert
+                    </button>
+                  </>
+                )}
+                {booking.status === 'SCHEDULED' && (
+                  <button className="btn-approve" onClick={() => handleStatusUpdate(booking.id, 'COMPLETED')}>
+                    Complete
+                  </button>
+                )}
+                {['INCOMING', 'SCHEDULED'].includes(booking.status) && (
+                  <button className="btn-cancel" onClick={() => handleStatusUpdate(booking.id, 'CANCELLED')}>
+                    Cancel
+                  </button>
+                )}
+              </div>
             </div>
           ))
         )}

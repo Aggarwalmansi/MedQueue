@@ -1,110 +1,225 @@
 .hospital-signup-page {
-    background: #f8fafc;
+    background: #f1f5f9;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.signup-hero {
-    background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
-    color: white;
-    padding: 4rem 2rem;
-    text-align: center;
+.signup-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+    width: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
-.signup-hero h1 {
-    font-size: 3rem;
-    font-weight: 800;
-    margin-bottom: 1rem;
+/* Progress Bar */
+.signup-progress {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    padding: 0 1rem;
 }
 
-.signup-hero p {
-    font-size: 1.25rem;
-    opacity: 0.9;
-    max-width: 600px;
-    margin: 0 auto 2rem;
-}
-
-.cta-button {
-    background: white;
-    color: #0f766e;
-    padding: 1rem 2rem;
-    border: none;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1.1rem;
-    display: inline-flex;
+.step-indicator {
+    display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 0.5rem;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #94a3b8;
+    font-size: 0.875rem;
+    font-weight: 500;
+    z-index: 1;
 }
 
-.signup-content {
-    max-width: 1200px;
-    margin: -3rem auto 4rem;
-    padding: 0 2rem;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
+.step-indicator.active {
+    color: #0f766e;
 }
 
-.benefits-section {
+.step-number {
+    width: 32px;
+    height: 32px;
+    background: #e2e8f0;
+    border-radius: 50%;
     display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    margin-top: 3rem;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: all 0.3s ease;
 }
 
-.benefit-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
+.step-indicator.active .step-number {
+    background: #0f766e;
+    color: white;
 }
 
-.benefit-icon {
-    color: #0d9488;
+.step-line {
+    flex: 1;
+    height: 2px;
+    background: #e2e8f0;
+    margin: 0 1rem;
+    margin-top: -24px;
+    transition: all 0.3s ease;
 }
 
-.benefit-card h3 {
-    font-size: 1.25rem;
-    color: #1e293b;
-    margin: 0;
+.step-line.active {
+    background: #0f766e;
 }
 
-.benefit-card p {
-    color: #64748b;
-    margin: 0;
-}
-
-.signup-form-container {
+/* Signup Card */
+.signup-card {
     background: white;
     padding: 2.5rem;
     border-radius: 16px;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-.signup-form-container h2 {
+.signup-card h2 {
     color: #1e293b;
     margin-bottom: 1.5rem;
-    font-size: 1.5rem;
+    text-align: center;
+    font-size: 1.75rem;
 }
 
-.signup-form {
+.form-step h3 {
+    color: #334155;
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.25rem;
+}
+
+.form-group label {
     display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #475569;
+    margin-bottom: 0.5rem;
 }
 
-@media (max-width: 768px) {
-    .signup-content {
+.form-group input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #0f766e;
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* Review Section */
+.review-details {
+    background: #f8fafc;
+    padding: 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 1.5rem;
+}
+
+.review-details p {
+    margin: 0.5rem 0;
+    color: #475569;
+}
+
+.review-details strong {
+    color: #1e293b;
+    margin-right: 0.5rem;
+}
+
+.terms-check {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+.terms-check input {
+    width: auto;
+}
+
+/* Actions */
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.next-btn,
+.submit-btn {
+    background: #0f766e;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-left: auto;
+}
+
+.next-btn:hover,
+.submit-btn:hover {
+    background: #0d9488;
+}
+
+.prev-btn {
+    background: white;
+    color: #64748b;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.prev-btn:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.error-message {
+    background: #fee2e2;
+    color: #b91c1c;
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+@media (max-width: 640px) {
+    .form-row {
         grid-template-columns: 1fr;
-        margin-top: 2rem;
     }
 
-    .signup-hero h1 {
-        font-size: 2rem;
+    .signup-card {
+        padding: 1.5rem;
     }
 }

@@ -1,0 +1,65 @@
+/* RecommendationSection.css */
+.recommendation-section {
+    margin-bottom: 32px;
+}
+
+.recommendation-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.recommendation-header h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0;
+}
+
+.recommendation-icon {
+    color: #8b5cf6;
+    /* Purple for magic/recommendation */
+    fill: #8b5cf6;
+}
+
+.recommendation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+}
+
+.recommendation-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.recommendation-reason {
+    background-color: #f3f4f6;
+    color: #4b5563;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 8px 8px 0 0;
+    margin-bottom: -4px;
+    /* Slight overlap or just sit on top */
+    z-index: 0;
+    width: fit-content;
+    margin-left: 12px;
+    border: 1px solid #e5e7eb;
+    border-bottom: none;
+}
+
+/* Ensure card sits on top properly */
+.recommendation-item .hospital-card {
+    z-index: 1;
+    position: relative;
+}
+
+@media (max-width: 768px) {
+    .recommendation-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -2,89 +2,114 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { getDistanceFromLatLonInKm } = require('../utils/distance'); // Assuming this util exists or I'll create it
 
-// Helper for fuzzy matching (simple includes for now, can be enhanced)
-const calculateScore = (hospital, query) => {
-    let score = 0;
-    const q = query.toLowerCase().trim();
 
-    // Synonyms Map
+const parseQuery = (query) => {
+    const q = query.toLowerCase().trim();
+    const result = {
+        original: q,
+        specialty: null,
+        bedType: null,
+        location: null,
+        keywords: []
+    };
+
+
+    if (q.includes('icu') || q.includes('intensive')) result.bedType = 'ICU';
+    else if (q.includes('ventilator') || q.includes('vent')) result.bedType = 'Ventilator';
+    else if (q.includes('oxygen') || q.includes('o2')) result.bedType = 'Oxygen';
+    else if (q.includes('general') || q.includes('ward')) result.bedType = 'General';
+
+
+    const specialties = ['cardiac', 'heart', 'neuro', 'brain', 'ortho', 'bone', 'pediatric', 'child', 'cancer', 'onco', 'kidney', 'renal'];
+    const specMap = {
+        'heart': 'Cardiology', 'cardiac': 'Cardiology',
+        'brain': 'Neurology', 'neuro': 'Neurology',
+        'bone': 'Orthopedics', 'ortho': 'Orthopedics',
+        'child': 'Pediatrics', 'pediatric': 'Pediatrics',
+        'cancer': 'Oncology', 'onco': 'Oncology',
+        'kidney': 'Nephrology', 'renal': 'Nephrology'
+    };
+
+    for (const s of specialties) {
+        if (q.includes(s)) {
+            result.specialty = specMap[s] || s.charAt(0).toUpperCase() + s.slice(1);
+            break;
+        }
+    }
+
+
+    const locationMatch = q.match(/in\s+([a-z\s]+)/);
+    if (locationMatch) {
+        result.location = locationMatch[1].trim();
+    }
+
+    return result;
+};
+
+
+const calculateScore = (hospital, parsedQuery) => {
+    let score = 0;
+    const { original, specialty, bedType, location } = parsedQuery;
+
+
+    if (specialty) {
+        if (hospital.specializations && Array.isArray(hospital.specializations)) {
+            const hasSpec = hospital.specializations.some(s =>
+                s.department && s.department.toLowerCase().includes(specialty.toLowerCase())
+            );
+            if (hasSpec) score += 150;
+        }
+    }
+
+
+    if (bedType) {
+        if (bedType === 'ICU' && hospital.bedsICU > 0) score += 100;
+        if (bedType === 'Ventilator' && hospital.criticalCare?.ventilators) score += 100;
+        if (bedType === 'Oxygen' && hospital.bedsOxygen > 0) score += 100;
+        if (bedType === 'General' && hospital.bedsGeneral > 0) score += 100;
+    }
+
+
+    if (location) {
+        if (hospital.city && hospital.city.toLowerCase().includes(location)) score += 80;
+        if (hospital.address && hospital.address.toLowerCase().includes(location)) score += 60;
+    }
+
+
+    if (hospital.name.toLowerCase().includes(original)) score += 50;
+
+
     const synonyms = {
-        'o2': 'oxygen',
         'er': 'emergency',
         'casualty': 'emergency',
-        'heart': 'cardio',
-        'kidney': 'nephro',
-        'lungs': 'pulmo',
-        'cancer': 'onco',
-        'xray': 'x-ray',
         'scan': 'diagnostics'
     };
 
-    // Check query against synonyms
-    let effectiveQueries = [q];
     Object.keys(synonyms).forEach(key => {
-        if (q.includes(key)) {
-            effectiveQueries.push(q.replace(key, synonyms[key]));
+        if (original.includes(key)) {
+            // Check facilities
+            if (hospital.diagnostics && JSON.stringify(hospital.diagnostics).toLowerCase().includes(synonyms[key])) score += 30;
         }
     });
-
-    // Helper to check any of the effective queries
-    const matches = (text) => {
-        if (!text) return false;
-        const lowerText = text.toLowerCase();
-        return effectiveQueries.some(eq => lowerText.includes(eq));
-    };
-
-    // 1. Name Match (Highest Priority)
-    if (matches(hospital.name)) score += 100;
-
-    // 2. Address/City Match
-    if (matches(hospital.city)) score += 60;
-    if (matches(hospital.address)) score += 50;
-
-    // 3. Specialization Match
-    if (hospital.specializations && Array.isArray(hospital.specializations)) {
-        const hasSpec = hospital.specializations.some(s =>
-            matches(s.department) ||
-            (s.keyEquipment && s.keyEquipment.some(eq => matches(eq)))
-        );
-        if (hasSpec) score += 70;
-    }
-
-    // 4. Facility/Equipment Match (Diagnostics, Critical Care, Support)
-    const checkJson = (jsonObj) => {
-        if (!jsonObj) return false;
-        return Object.keys(jsonObj).some(key =>
-            matches(key) && jsonObj[key] === true
-        );
-    };
-
-    if (checkJson(hospital.diagnostics)) score += 50;
-    if (checkJson(hospital.criticalCare)) score += 50;
-    if (checkJson(hospital.supportServices)) score += 30;
-
-    // 5. Bed Type Match (Partial & Synonym Aware)
-    // Check if query matches "icu" or "intensive"
-    if ((matches('icu') || matches('intensive')) && hospital.bedsICU > 0) score += 40;
-
-    // Check if query matches "ventilator"
-    if (matches('ventilator') && hospital.criticalCare?.ventilators) score += 40;
-
-    // Check if query matches "oxygen" or "o2"
-    if ((matches('oxygen') || matches('o2')) && hospital.bedsOxygen > 0) score += 40;
-
-    // Check if query matches "general" or "ward"
-    if ((matches('general') || matches('ward')) && hospital.bedsGeneral > 0) score += 40;
 
     return score;
 };
 
 exports.searchHospitals = async (req, res) => {
     try {
-        const { q, lat, lng } = req.query;
-        if (!q) return res.json([]);
+        const { q, lat, lng, page = 1, limit = 10 } = req.query;
+        if (!q) return res.json({ hospitals: [], pagination: { total: 0, page: 1, limit: 10, totalPages: 0 } });
 
-        // Fetch all verified hospitals (optimization: select only needed fields)
+        const pageNum = parseInt(page);
+        const limitNum = parseInt(limit);
+        const skip = (pageNum - 1) * limitNum;
+
+        const parsedQuery = parseQuery(q);
+        console.log('[DEBUG] Parsed Query:', parsedQuery);
+
+        // Fetch all verified hospitals
+        // Note: For search scoring, we need to fetch all candidates first, score them, sort them, and THEN paginate.
+        // This is not efficient for huge datasets but fine for < 1000 hospitals.
         const hospitals = await prisma.hospital.findMany({
             where: { isVerified: true },
             include: {
@@ -95,8 +120,7 @@ exports.searchHospitals = async (req, res) => {
 
         // Filter and Score
         const results = hospitals.map(h => {
-            const score = calculateScore(h, q);
-            console.log(`[DEBUG] Hospital: ${h.name}, Query: ${q}, Score: ${score}`);
+            const score = calculateScore(h, parsedQuery);
 
             // Calculate distance if location provided
             let distance = null;
@@ -105,8 +129,6 @@ exports.searchHospitals = async (req, res) => {
                     parseFloat(lat), parseFloat(lng),
                     h.latitude, h.longitude
                 );
-                // Distance penalty: -1 score per km (optional)
-                // score -= distance; 
             }
 
             return { ...h, searchScore: score, distance };
@@ -114,7 +136,19 @@ exports.searchHospitals = async (req, res) => {
             .filter(h => h.searchScore > 0)
             .sort((a, b) => b.searchScore - a.searchScore);
 
-        res.json(results);
+        // Paginate
+        const totalResults = results.length;
+        const paginatedResults = results.slice(skip, skip + limitNum);
+
+        res.json({
+            hospitals: paginatedResults,
+            pagination: {
+                total: totalResults,
+                page: pageNum,
+                limit: limitNum,
+                totalPages: Math.ceil(totalResults / limitNum)
+            }
+        });
 
     } catch (error) {
         console.error('Search error:', error);
@@ -188,5 +222,59 @@ exports.getSuggestions = async (req, res) => {
     } catch (error) {
         console.error('Suggestion error:', error);
         res.status(500).json({ message: 'Suggestion failed' });
+    }
+};
+exports.getTrendingHospitals = async (req, res) => {
+    try {
+        // Logic: High rating + random factor (simulating activity)
+        // In a real app, this would query a 'bookings' or 'views' table
+        const hospitals = await prisma.hospital.findMany({
+            where: { isVerified: true },
+            orderBy: { averageRating: 'desc' },
+            take: 10,
+            include: {
+                manager: { select: { email: true, phone: true } },
+                ratings: true
+            }
+        });
+
+        // Shuffle and pick top 5 to simulate "trending" changes
+        const shuffled = hospitals.sort(() => 0.5 - Math.random());
+        const trending = shuffled.slice(0, 5).map(h => ({
+            ...h,
+            isTrending: true
+        }));
+
+        res.json(trending);
+    } catch (error) {
+        console.error('Trending error:', error);
+        res.status(500).json({ message: 'Failed to fetch trending hospitals' });
+    }
+};
+
+exports.getRecommendedHospitals = async (req, res) => {
+    try {
+        // Logic: Mock recommendation based on "user history"
+        // In real app, use req.user.id to fetch history
+        const hospitals = await prisma.hospital.findMany({
+            where: { isVerified: true },
+            take: 10,
+            include: {
+                manager: { select: { email: true, phone: true } },
+                ratings: true
+            }
+        });
+
+        // Pick 3 random ones as "Recommended"
+        const shuffled = hospitals.sort(() => 0.5 - Math.random());
+        const recommended = shuffled.slice(0, 3).map(h => ({
+            ...h,
+            recommendationReason: ['Similar to your recent search', 'Highly rated in your area', 'Popular for Cardiology'][Math.floor(Math.random() * 3)]
+        }));
+
+        res.json(recommended);
+    } catch (error) {
+        console.error('Recommendation error:', error);
+        res.status(500).json({ message: 'Failed to fetch recommendations' });
     }
 };

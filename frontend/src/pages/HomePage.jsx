@@ -91,7 +91,7 @@ const HomePage = () => {
 
       {/* Three Steps to Care Section */}
       <section id="how-it-works" className="three-steps-section">
-        <div className="container-max">
+        <div className="three-steps-container">
           <div className="section-header text-center" style={{ textAlign: 'center' }}>
             <h2 className="section-title2">Three Steps to Care</h2>
             <p className="section-subtitle">Simple, fast, and designed for emergencies</p>

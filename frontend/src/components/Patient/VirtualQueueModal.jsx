@@ -13,7 +13,7 @@ const VirtualQueueModal = ({ isOpen, onClose, hospital }) => {
 
         try {
             const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-            const response = await fetch(`${apiUrl}/api/hospitals/${hospital.id}/virtual-queue`, {
+            const response = await fetch(`${apiUrl}/api/patient/hospitals/${hospital.id}/virtual-queue`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -70,7 +70,7 @@ router.patch('/inventory', async (req, res) => {
     }
 });
 
-// Get Incoming Bookings
+// Get All Bookings (Unified: Triage + Calendar)
 router.get('/bookings', async (req, res) => {
     try {
         let hospitalId;
@@ -88,11 +88,22 @@ router.get('/bookings', async (req, res) => {
             return res.status(404).json({ message: 'Hospital not found' });
         }
 
+        const { status, source } = req.query;
+
+        const whereClause = {
+            hospitalId: hospitalId
+        };
+
+        if (status && status !== 'ALL') {
+            whereClause.status = status;
+        }
+
+        if (source && source !== 'ALL') {
+            whereClause.source = source;
+        }
+
         const bookings = await prisma.booking.findMany({
-            where: {
-                hospitalId: hospitalId,
-                status: req.query.status || 'INCOMING'
-            },
+            where: whereClause,
             orderBy: { createdAt: 'desc' },
             include: { user: true }
         });
@@ -108,9 +119,10 @@ router.get('/bookings', async (req, res) => {
 router.patch('/bookings/:id/status', async (req, res) => {
     try {
         const { id } = req.params;
-        const { status } = req.body; // ADMITTED, DIVERTED, CANCELLED
+        const { status } = req.body; // ADMITTED, DIVERTED, CANCELLED, SCHEDULED, COMPLETED, NO_SHOW
 
-        if (!['ADMITTED', 'DIVERTED', 'CANCELLED'].includes(status)) {
+        const validStatuses = ['ADMITTED', 'DIVERTED', 'CANCELLED', 'SCHEDULED', 'COMPLETED', 'NO_SHOW', 'INCOMING'];
+        if (!validStatuses.includes(status)) {
             return res.status(400).json({ message: 'Invalid status' });
         }
 
@@ -232,6 +244,52 @@ router.patch('/virtual-queue/:id/status', async (req, res) => {
         res.json({ message: 'Queue entry updated', entry });
     } catch (error) {
         console.error('Error updating queue entry:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// DELETE /api/hospital/virtual-queue/:id - Remove from queue (Hard Delete)
+router.delete('/virtual-queue/:id', async (req, res) => {
+    try {
+        const userId = req.user?.userId;
+        if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+        const { id } = req.params;
+
+        // Verify hospital ownership
+        const hospital = await prisma.hospital.findUnique({
+            where: { managerId: userId }
+        });
+
+        if (!hospital) {
+            return res.status(404).json({ message: 'Hospital not found' });
+        }
+
+        const entry = await prisma.virtualQueueEntry.findUnique({
+            where: { id: parseInt(id) }
+        });
+
+        if (!entry) {
+            return res.status(404).json({ message: 'Queue entry not found' });
+        }
+
+        if (entry.hospitalId !== hospital.id) {
+            return res.status(403).json({ message: 'Unauthorized to remove this entry' });
+        }
+
+        // Hard Delete
+        await prisma.virtualQueueEntry.delete({
+            where: { id: parseInt(id) }
+        });
+
+        // Emit real-time update
+        if (req.io) {
+            req.io.emit('queue_entry_removed', { id: parseInt(id), hospitalId: hospital.id });
+        }
+
+        res.json({ message: 'Queue entry removed successfully' });
+    } catch (error) {
+        console.error('Error removing queue entry:', error);
         res.status(500).json({ message: 'Server error' });
     }
 });

@@ -5,9 +5,27 @@ import '../../styles/FacilitiesManagement.css';
 const FacilitiesManagement = ({ hospital, token }) => {
     const [facilities, setFacilities] = useState({
         specializations: [],
-        diagnostics: {},
-        criticalCare: {},
-        supportServices: {},
+        diagnostics: {
+            mri: { available: false },
+            ctScan: { available: false },
+            xRay: { available: false },
+            ultrasound: { available: false },
+            custom: []
+        },
+        criticalCare: {
+            ventilators: { total: 0, inUse: 0 },
+            dialysis: { total: 0, inUse: 0 },
+            bloodBank: { available: false, stocks: {} }
+        },
+        supportServices: {
+            pharmacy: { available: false },
+            cafeteria: { available: false },
+            atm: false,
+            prayerRoom: false,
+            wifi: false,
+            parking: { available: false },
+            custom: []
+        },
         accreditations: []
     });
     const [profileCompleteness, setProfileCompleteness] = useState(0);
@@ -20,6 +38,13 @@ const FacilitiesManagement = ({ hospital, token }) => {
         accreditations: false
     });
 
+    // Local state for custom inputs
+    const [customServiceInput, setCustomServiceInput] = useState('');
+    const [customDiagnosticInput, setCustomDiagnosticInput] = useState('');
+    const [customAccreditationInput, setCustomAccreditationInput] = useState('');
+
+    const PREDEFINED_ACCREDITATIONS = ['NABH', 'NABL', 'JCI', 'ISO 9001', 'AABB'];
+
     useEffect(() => {
         if (hospital) {
             fetchFacilities();
@@ -29,10 +54,16 @@ const FacilitiesManagement = ({ hospital, token }) => {
     const fetchFacilities = async () => {
         try {
             const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-            const response = await fetch(`${apiUrl}/api/hospitals/${hospital.id}/facilities`);
+            const response = await fetch(`${apiUrl}/api/patient/hospitals/${hospital.id}/facilities`);
             if (response.ok) {
                 const data = await response.json();
-                setFacilities(data.facilities);
+                // Ensure custom arrays exist if not present in DB
+                const loadedFacilities = {
+                    ...data.facilities,
+                    diagnostics: { ...data.facilities.diagnostics, custom: data.facilities.diagnostics?.custom || [] },
+                    supportServices: { ...data.facilities.supportServices, custom: data.facilities.supportServices?.custom || [] }
+                };
+                setFacilities(loadedFacilities);
                 setProfileCompleteness(data.profileCompleteness);
             }
         } catch (error) {
@@ -159,6 +190,28 @@ const FacilitiesManagement = ({ hospital, token }) => {
         }));
     };
 
+    const addCustomDiagnostic = () => {
+        if (!customDiagnosticInput.trim()) return;
+        setFacilities(prev => ({
+            ...prev,
+            diagnostics: {
+                ...prev.diagnostics,
+                custom: [...(prev.diagnostics.custom || []), customDiagnosticInput.trim()]
+            }
+        }));
+        setCustomDiagnosticInput('');
+    };
+
+    const removeCustomDiagnostic = (index) => {
+        setFacilities(prev => ({
+            ...prev,
+            diagnostics: {
+                ...prev.diagnostics,
+                custom: prev.diagnostics.custom.filter((_, i) => i !== index)
+            }
+        }));
+    };
+
     // Critical Care handlers
     const updateCriticalCare = (field, value) => {
         setFacilities(prev => ({
@@ -200,30 +253,67 @@ const FacilitiesManagement = ({ hospital, token }) => {
         }));
     };
 
+    const addCustomService = () => {
+        if (!customServiceInput.trim()) return;
+        setFacilities(prev => ({
+            ...prev,
+            supportServices: {
+                ...prev.supportServices,
+                custom: [...(prev.supportServices.custom || []), customServiceInput.trim()]
+            }
+        }));
+        setCustomServiceInput('');
+    };
+
+    const removeCustomService = (index) => {
+        setFacilities(prev => ({
+            ...prev,
+            supportServices: {
+                ...prev.supportServices,
+                custom: prev.supportServices.custom.filter((_, i) => i !== index)
+            }
+        }));
+    };
+
     // Accreditations handlers
-    const addAccreditation = () => {
+    const toggleAccreditation = (name, checked) => {
+        setFacilities(prev => {
+            const currentAccreditations = prev.accreditations || [];
+            if (checked) {
+                // Add if not exists
+                if (!currentAccreditations.some(acc => acc.name === name)) {
+                    return {
+                        ...prev,
+                        accreditations: [...currentAccreditations, { name, validUntil: '' }]
+                    };
+                }
+            } else {
+                // Remove
+                return {
+                    ...prev,
+                    accreditations: currentAccreditations.filter(acc => acc.name !== name)
+                };
+            }
+            return prev;
+        });
+    };
+
+    const addCustomAccreditation = () => {
+        if (!customAccreditationInput.trim()) return;
         setFacilities(prev => ({
             ...prev,
             accreditations: [...(prev.accreditations || []), {
-                name: '',
+                name: customAccreditationInput.trim(),
                 validUntil: ''
             }]
         }));
+        setCustomAccreditationInput('');
     };
 
-    const removeAccreditation = (index) => {
+    const removeAccreditation = (name) => {
         setFacilities(prev => ({
             ...prev,
-            accreditations: prev.accreditations.filter((_, i) => i !== index)
-        }));
-    };
-
-    const updateAccreditation = (index, field, value) => {
-        setFacilities(prev => ({
-            ...prev,
-            accreditations: prev.accreditations.map((acc, i) =>
-                i === index ? { ...acc, [field]: value } : acc
-            )
+            accreditations: prev.accreditations.filter(acc => acc.name !== name)
         }));
     };
 
@@ -395,8 +485,8 @@ const FacilitiesManagement = ({ hospital, token }) => {
                 {expandedSections.diagnostics && (
                     <div className="section-content">
                         {['mri', 'ctScan', 'xRay', 'ultrasound'].map(type => (
-                            <div key={type} className="diagnostic-item">
-                                <div className="diagnostic-header">
+                            <div key={type} className="diagnostic-row" style={{ marginBottom: '1rem' }}>
+                                <div className="service-row" style={{ marginBottom: facilities.diagnostics[type]?.available ? '0.5rem' : '0' }}>
                                     <label className="checkbox-label">
                                         <input
                                             type="checkbox"
@@ -410,13 +500,14 @@ const FacilitiesManagement = ({ hospital, token }) => {
                                     </label>
                                 </div>
                                 {facilities.diagnostics[type]?.available && (
-                                    <div className="diagnostic-details">
+                                    <div className="diagnostic-details" style={{ paddingLeft: '1.8rem' }}>
                                         <input
                                             type="text"
                                             placeholder="Specification"
                                             value={facilities.diagnostics[type]?.specification || ''}
                                             onChange={(e) => updateDiagnostic(type, 'specification', e.target.value)}
                                             className="form-input-small"
+                                            style={{ width: '100%', maxWidth: '300px' }}
                                         />
                                         {(type === 'mri' || type === 'ctScan') && (
                                             <input
@@ -426,12 +517,46 @@ const FacilitiesManagement = ({ hospital, token }) => {
                                                 onChange={(e) => updateDiagnostic(type, 'avgWaitMinutes', parseInt(e.target.value) || 0)}
                                                 className="form-input-small"
                                                 min="0"
+                                                style={{ width: '150px' }}
                                             />
                                         )}
                                     </div>
                                 )}
                             </div>
                         ))}
+
+                        {/* Custom Diagnostics */}
+                        {facilities.diagnostics.custom?.map((item, index) => (
+                            <div key={`custom-diag-${index}`} className="service-row" style={{ justifyContent: 'space-between' }}>
+                                <label className="checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={true}
+                                        readOnly
+                                    />
+                                    {item}
+                                </label>
+                                <button
+                                    onClick={() => removeCustomDiagnostic(index)}
+                                    className="remove-btn-small"
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        ))}
+
+                        <div className="add-custom-item">
+                            <input
+                                type="text"
+                                placeholder="Enter custom equipment"
+                                value={customDiagnosticInput}
+                                onChange={(e) => setCustomDiagnosticInput(e.target.value)}
+                                className="form-input"
+                            />
+                            <button onClick={addCustomDiagnostic} className="add-btn-small">
+                                <Plus size={14} /> Add
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>
@@ -503,8 +628,8 @@ const FacilitiesManagement = ({ hospital, token }) => {
                         </div>
 
                         {/* Blood Bank */}
-                        <div className="blood-bank-section">
-                            <label className="checkbox-label">
+                        <div className="equipment-row" style={{ display: 'block' }}>
+                            <label className="checkbox-label" style={{ marginBottom: '1rem', display: 'flex' }}>
                                 <input
                                     type="checkbox"
                                     checked={facilities.criticalCare.bloodBank?.available || false}
@@ -587,32 +712,38 @@ const FacilitiesManagement = ({ hospital, token }) => {
                         </div>
 
                         {/* Simple toggles */}
-                        <label className="checkbox-label">
-                            <input
-                                type="checkbox"
-                                checked={facilities.supportServices.atm || false}
-                                onChange={(e) => updateService('atm', null, e.target.checked)}
-                            />
-                            ATM Available
-                        </label>
+                        <div className="service-row">
+                            <label className="checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={facilities.supportServices.atm || false}
+                                    onChange={(e) => updateService('atm', null, e.target.checked)}
+                                />
+                                ATM Available
+                            </label>
+                        </div>
 
-                        <label className="checkbox-label">
-                            <input
-                                type="checkbox"
-                                checked={facilities.supportServices.prayerRoom || false}
-                                onChange={(e) => updateService('prayerRoom', null, e.target.checked)}
-                            />
-                            Prayer Room
-                        </label>
+                        <div className="service-row">
+                            <label className="checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={facilities.supportServices.prayerRoom || false}
+                                    onChange={(e) => updateService('prayerRoom', null, e.target.checked)}
+                                />
+                                Prayer Room
+                            </label>
+                        </div>
 
-                        <label className="checkbox-label">
-                            <input
-                                type="checkbox"
-                                checked={facilities.supportServices.wifi || false}
-                                onChange={(e) => updateService('wifi', null, e.target.checked)}
-                            />
-                            Free Wi-Fi
-                        </label>
+                        <div className="service-row">
+                            <label className="checkbox-label">
+                                <input
+                                    type="checkbox"
+                                    checked={facilities.supportServices.wifi || false}
+                                    onChange={(e) => updateService('wifi', null, e.target.checked)}
+                                />
+                                Free Wi-Fi
+                            </label>
+                        </div>
 
                         {/* Parking */}
                         <div className="service-row">
@@ -635,6 +766,39 @@ const FacilitiesManagement = ({ hospital, token }) => {
                                 />
                             )}
                         </div>
+
+                        {/* Custom Services */}
+                        {facilities.supportServices.custom?.map((item, index) => (
+                            <div key={`custom-svc-${index}`} className="service-row" style={{ justifyContent: 'space-between' }}>
+                                <label className="checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={true}
+                                        readOnly
+                                    />
+                                    {item}
+                                </label>
+                                <button
+                                    onClick={() => removeCustomService(index)}
+                                    className="remove-btn-small"
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        ))}
+
+                        <div className="add-custom-item">
+                            <input
+                                type="text"
+                                placeholder="Enter custom service"
+                                value={customServiceInput}
+                                onChange={(e) => setCustomServiceInput(e.target.value)}
+                                className="form-input"
+                            />
+                            <button onClick={addCustomService} className="add-btn-small">
+                                <Plus size={14} /> Add
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>
@@ -647,37 +811,52 @@ const FacilitiesManagement = ({ hospital, token }) => {
                 </div>
                 {expandedSections.accreditations && (
                     <div className="section-content">
-                        {facilities.accreditations?.map((acc, index) => (
-                            <div key={index} className="accreditation-row">
-                                <select
-                                    value={acc.name}
-                                    onChange={(e) => updateAccreditation(index, 'name', e.target.value)}
-                                    className="form-select"
-                                >
-                                    <option value="">Select Accreditation</option>
-                                    <option value="NABH">NABH</option>
-                                    <option value="NABL">NABL</option>
-                                    <option value="JCI">JCI</option>
-                                    <option value="ISO 9001">ISO 9001</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                                <input
-                                    type="date"
-                                    value={acc.validUntil ? new Date(acc.validUntil).toISOString().split('T')[0] : ''}
-                                    onChange={(e) => updateAccreditation(index, 'validUntil', e.target.value)}
-                                    className="form-input-small"
-                                />
+                        {/* Predefined Accreditations */}
+                        <div className="accreditations-list" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                            {PREDEFINED_ACCREDITATIONS.map(name => (
+                                <label key={name} className="checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={facilities.accreditations?.some(acc => acc.name === name) || false}
+                                        onChange={(e) => toggleAccreditation(name, e.target.checked)}
+                                    />
+                                    {name}
+                                </label>
+                            ))}
+                        </div>
+
+                        {/* Custom Accreditations */}
+                        {facilities.accreditations?.filter(acc => !PREDEFINED_ACCREDITATIONS.includes(acc.name)).map((acc, index) => (
+                            <div key={index} className="accreditation-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                                <label className="checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={true}
+                                        readOnly
+                                    />
+                                    {acc.name}
+                                </label>
                                 <button
-                                    onClick={() => removeAccreditation(index)}
+                                    onClick={() => removeAccreditation(acc.name)}
                                     className="remove-btn-small"
                                 >
                                     <X size={14} />
                                 </button>
                             </div>
                         ))}
-                        <button onClick={addAccreditation} className="add-btn">
-                            <Plus size={18} /> Add Accreditation
-                        </button>
+
+                        <div className="add-custom-item" style={{ marginTop: '1rem' }}>
+                            <input
+                                type="text"
+                                placeholder="Add Custom Accreditation"
+                                value={customAccreditationInput}
+                                onChange={(e) => setCustomAccreditationInput(e.target.value)}
+                                className="form-input"
+                            />
+                            <button onClick={addCustomAccreditation} className="add-btn-small">
+                                <Plus size={14} /> Add Accreditation
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>

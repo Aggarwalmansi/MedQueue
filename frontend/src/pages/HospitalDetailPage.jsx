@@ -22,7 +22,7 @@ const HospitalDetailPage = () => {
     const fetchHospitalDetails = async () => {
         try {
             const apiUrl = import.meta.env.VITE_BACKEND_URL || "http://localhost:5001";
-            const response = await fetch(`${apiUrl}/api/hospitals/${id}/facilities`);
+            const response = await fetch(`${apiUrl}/api/patient/hospitals/${id}/facilities`);
 
             if (!response.ok) throw new Error('Failed to fetch hospital details');
 
@@ -325,7 +325,7 @@ const FacilitiesTab = ({ facilities }) => {
                 <div className="section">
                     <h3 className="section-title">Diagnostic Equipment</h3>
                     <div className="diagnostics-grid">
-                        {facilities.diagnostics.mri && (
+                        {facilities.diagnostics.mri && facilities.diagnostics.mri.available && (
                             <FacilityCard
                                 icon="🔬"
                                 title="MRI Scanner"
@@ -335,7 +335,7 @@ const FacilitiesTab = ({ facilities }) => {
                                 nextSlot={facilities.diagnostics.mri.nextSlot}
                             />
                         )}
-                        {facilities.diagnostics.ctScan && (
+                        {facilities.diagnostics.ctScan && facilities.diagnostics.ctScan.available && (
                             <FacilityCard
                                 icon="🩻"
                                 title="CT Scan"
@@ -345,7 +345,7 @@ const FacilitiesTab = ({ facilities }) => {
                                 nextSlot={facilities.diagnostics.ctScan.nextSlot}
                             />
                         )}
-                        {facilities.diagnostics.xRay && (
+                        {facilities.diagnostics.xRay && facilities.diagnostics.xRay.available && (
                             <FacilityCard
                                 icon="📷"
                                 title="X-Ray"
@@ -353,7 +353,7 @@ const FacilitiesTab = ({ facilities }) => {
                                 specification={facilities.diagnostics.xRay.timing}
                             />
                         )}
-                        {facilities.diagnostics.ultrasound && (
+                        {facilities.diagnostics.ultrasound && facilities.diagnostics.ultrasound.available && (
                             <FacilityCard
                                 icon="🔊"
                                 title="Ultrasound"
@@ -361,6 +361,15 @@ const FacilitiesTab = ({ facilities }) => {
                                 specification={facilities.diagnostics.ultrasound.types?.join(', ')}
                             />
                         )}
+                        {/* Custom Diagnostics */}
+                        {facilities.diagnostics.custom?.map((item, index) => (
+                            <FacilityCard
+                                key={`custom-diag-${index}`}
+                                icon="🩺"
+                                title={item}
+                                available={true}
+                            />
+                        ))}
                     </div>
                 </div>
             )}
@@ -442,7 +451,7 @@ const ServicesTab = ({ services }) => {
     return (
         <div className="services-tab">
             <div className="services-list">
-                {services.pharmacy && (
+                {services.pharmacy && services.pharmacy.available && (
                     <div className="service-item">
                         <span className="service-icon">💊</span>
                         <div className="service-content">
@@ -452,7 +461,7 @@ const ServicesTab = ({ services }) => {
                         <span className="service-status">✅</span>
                     </div>
                 )}
-                {services.cafeteria && (
+                {services.cafeteria && services.cafeteria.available && (
                     <div className="service-item">
                         <span className="service-icon">🍽️</span>
                         <div className="service-content">
@@ -472,7 +481,7 @@ const ServicesTab = ({ services }) => {
                         <span className="service-status">✅</span>
                     </div>
                 )}
-                {services.parking && (
+                {services.parking && services.parking.available && (
                     <div className="service-item">
                         <span className="service-icon">🅿️</span>
                         <div className="service-content">
@@ -507,6 +516,17 @@ const ServicesTab = ({ services }) => {
                         <span className="service-status">✅</span>
                     </div>
                 )}
+                {/* Custom Services */}
+                {services.custom?.map((item, index) => (
+                    <div key={`custom-svc-${index}`} className="service-item">
+                        <span className="service-icon">⭐</span>
+                        <div className="service-content">
+                            <div className="service-name">{item}</div>
+                            <div className="service-detail">Available</div>
+                        </div>
+                        <span className="service-status">✅</span>
+                    </div>
+                ))}
             </div>
         </div>
     );

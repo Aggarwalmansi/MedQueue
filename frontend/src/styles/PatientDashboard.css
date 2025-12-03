@@ -60,13 +60,55 @@
 .filter-controls {
     display: flex;
     gap: 1rem;
+    align-items: center;
+}
+
+.sort-dropdown-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.sort-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    padding: 0.875rem 2.5rem 0.875rem 1rem;
+    background-color: white;
+    border: 1px solid var(--stone-200);
+    border-radius: var(--radius-lg);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--stone-700);
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 180px;
+}
+
+.sort-select:hover {
+    background-color: var(--stone-50);
+    border-color: var(--stone-300);
+}
+
+.sort-select:focus {
+    outline: none;
+    border-color: var(--primary-500);
+    box-shadow: 0 0 0 3px var(--primary-100);
+}
+
+.sort-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--stone-400);
 }
 
 .filter-btn {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0 1.25rem;
+    padding: 0.875rem 1.25rem;
     background-color: white;
     border: 1px solid var(--stone-200);
     border-radius: var(--radius-lg);
@@ -79,6 +121,11 @@
 .filter-btn:hover {
     background-color: var(--stone-50);
     border-color: var(--stone-300);
+}
+
+/* Dashboard Widgets */
+.dashboard-widgets {
+    margin-bottom: 3rem;
 }
 
 /* Loading State */
@@ -159,6 +206,27 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .search-filter-bar {
+        flex-direction: column;
+    }
+
+    .filter-controls {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .sort-select {
+        width: 100%;
+    }
+
+    .filter-btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 @keyframes spin {

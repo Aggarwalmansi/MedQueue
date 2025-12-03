@@ -291,9 +291,13 @@
 }
 
 .checkbox-label input[type="checkbox"] {
-    width: 1.125rem;
-    height: 1.125rem;
+    appearance: auto;
+    -webkit-appearance: checkbox;
+    width: 1.25rem;
+    height: 1.25rem;
     cursor: pointer;
+    accent-color: #0d9488;
+    flex-shrink: 0;
 }
 
 /* Equipment */
@@ -317,13 +321,9 @@
     flex: 1;
 }
 
-/* Blood Bank */
+/* Blood Bank - Removed badge styling to match other sections */
 .blood-bank-section {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    background: #fef2f2;
-    border-radius: 8px;
-    border: 1px solid #fecaca;
+    margin-top: 1rem;
 }
 
 .blood-stock-inputs {
@@ -331,6 +331,8 @@
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
     gap: 0.75rem;
     margin-top: 1rem;
+    padding-left: 1.5rem;
+    /* Indent slightly to show hierarchy */
 }
 
 .blood-input {
@@ -357,13 +359,35 @@
     min-width: 150px;
 }
 
-/* Accreditations */
-.accreditation-row {
-    display: grid;
-    grid-template-columns: 1fr 200px auto;
+/* Custom Items */
+.add-custom-item {
+    display: flex;
     gap: 0.75rem;
-    margin-bottom: 0.75rem;
+    margin-top: 1rem;
     align-items: center;
+}
+
+.add-custom-item .form-input {
+    flex: 1;
+    max-width: 300px;
+}
+
+/* Accreditations */
+.accreditations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.accreditation-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    background: #f9fafb;
+    border-radius: 6px;
 }
 
 /* Save Section */
@@ -376,6 +400,7 @@
     display: flex;
     justify-content: center;
     margin-top: 2rem;
+    z-index: 10;
 }
 
 .save-btn {
@@ -436,11 +461,16 @@
         width: 100%;
     }
 
-    .accreditation-row {
-        grid-template-columns: 1fr;
-    }
-
     .blood-stock-inputs {
         grid-template-columns: repeat(4, 1fr);
+    }
+
+    .add-custom-item {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .add-custom-item .form-input {
+        max-width: none;
     }
 }
