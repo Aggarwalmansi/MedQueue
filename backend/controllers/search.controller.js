@@ -226,8 +226,7 @@ exports.getSuggestions = async (req, res) => {
 };
 exports.getTrendingHospitals = async (req, res) => {
     try {
-        // Logic: High rating + random factor (simulating activity)
-        // In a real app, this would query a 'bookings' or 'views' table
+        
         const hospitals = await prisma.hospital.findMany({
             where: { isVerified: true },
             orderBy: { averageRating: 'desc' },
@@ -238,7 +237,7 @@ exports.getTrendingHospitals = async (req, res) => {
             }
         });
 
-        // Shuffle and pick top 5 to simulate "trending" changes
+       
         const shuffled = hospitals.sort(() => 0.5 - Math.random());
         const trending = shuffled.slice(0, 5).map(h => ({
             ...h,
@@ -254,8 +253,6 @@ exports.getTrendingHospitals = async (req, res) => {
 
 exports.getRecommendedHospitals = async (req, res) => {
     try {
-        // Logic: Mock recommendation based on "user history"
-        // In real app, use req.user.id to fetch history
         const hospitals = await prisma.hospital.findMany({
             where: { isVerified: true },
             take: 10,

@@ -196,9 +196,12 @@ router.get(
 
     // Redirect to frontend with tokens
     let frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+    // Ensure no trailing slash
     if (frontendUrl.endsWith('/')) {
       frontendUrl = frontendUrl.slice(0, -1);
     }
+
+    console.log('[OAUTH] Redirecting to:', frontendUrl);
 
     // Pass both tokens in query (Note: In production, refresh token should ideally be httpOnly cookie)
     res.redirect(`${frontendUrl}/oauth-callback?token=${accessToken}&refreshToken=${refreshToken}`);
